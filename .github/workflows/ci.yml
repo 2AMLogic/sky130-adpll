@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verification:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install simulation and lint tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends iverilog verilator yosys
+          # A missing tool must fail the job, never skip a step.
+          for t in iverilog verilator yosys; do command -v "$t"; done
+
+      - name: Install Python deps
+        run: |
+          python3 -m pip install --user uv
+          uv venv .venv
+          uv pip install --python .venv/bin/python -r verification/requirements.txt
+
+      - name: RTL lint
+        run: scripts/lint-rtl.sh
+
+      - name: Smoke test and negative control
+        run: .venv/bin/python verification/run_tests.py
+
+      - name: Validate result record
+        run: .venv/bin/python verification/check_records.py
+
+      - name: Upload result record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-result
+          path: sim/build/verification/result.json
+          if-no-files-found: warn

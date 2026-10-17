@@ -30,6 +30,20 @@
       ],
       "diverged": false,
       "notes": "Verbatim copies, no local edits. openroad-docker.sh is taken because openroad-smoke-test.sh needs it as its docker route and setup-env.sh symlinks it as the openroad fallback; on this host the PATH openroad wrapper does not forward PLATFORM_DIR, so the smoke test passes only via openroad-docker.sh (run with the host openroad off PATH). Not taken: scripts/spice_lef_parsing.py (unrelated), docs/environment.md and verification/check_pins.py (the setup script's comments point at them; this repo records pins in flow/smoke/records/environment.json instead)."
+    },
+    {
+      "source": "2AMLogic/sky130-modexp",
+      "commit": "18f4d8fd5e104f64550817a5468f262c159f734f",
+      "mode": "referenced",
+      "issue": "2AMLogic/sky130-adpll#4",
+      "paths": [
+        "verification/_dut.py",
+        "verification/test_modexp.py",
+        "verification/check_records.py",
+        "verification/gate-level/"
+      ],
+      "diverged": false,
+      "notes": "Harness shape only (cocotb DUT helpers, record checker, gate-level pattern). No file content is vendored; the runner and checker here are new and much smaller. Pins to be revisited with the environment pin (#3)."
     }
   ]
 }
