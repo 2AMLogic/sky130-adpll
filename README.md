@@ -48,7 +48,7 @@ somewhere a purely digital or purely analog block does not.
   that repo's ring VCO, charge pump, and analog loop filter have no
   counterpart here.
 
-## Target specification (DRAFT — engineering to ratify, see issue #1)
+## Target specification (DRAFT — engineering to ratify, see issue #2)
 
 | Parameter | Target | Fallback | Stretch |
 |---|---|---|---|
