@@ -1,0 +1,35 @@
+{
+  "schema": "reuse.lock/1",
+  "entries": [
+    {
+      "source": "2AMLogic/sky130-modexp",
+      "commit": "18f4d8fd5e104f64550817a5468f262c159f734f",
+      "mode": "vendored",
+      "issue": "2AMLogic/sky130-adpll#3",
+      "files": [
+        {
+          "path": "scripts/setup-env.sh",
+          "sha256": "30876d97bb62bb6c93c5fc84054cdf45c53ceb5ffb945e9d4a660997bfcb4c04"
+        },
+        {
+          "path": "scripts/openroad-smoke-test.sh",
+          "sha256": "7b1bdb292a1335f83cc9e4b7ece0c432aafb3c27e883445bb78544ef6dbc4c35"
+        },
+        {
+          "path": "scripts/openroad-smoke/smoke.tcl",
+          "sha256": "cc11743af4dc3b1b59dbebf002d47898ad0a21c6d22569648caf907b1e71ffe5"
+        },
+        {
+          "path": "scripts/openroad-smoke/smoke_top.v",
+          "sha256": "cc6e366f34aff8a9b3a41b3b06ef7bfc23bbf00388fb6d47fb856ec1aa1a3a07"
+        },
+        {
+          "path": "scripts/openroad-docker.sh",
+          "sha256": "1e18bb014c2fa0a05e27075e0ecae5518ba90ee17f021dc3b6395e9d5e8ab0b4"
+        }
+      ],
+      "diverged": false,
+      "notes": "Verbatim copies, no local edits. openroad-docker.sh is taken because openroad-smoke-test.sh needs it as its docker route and setup-env.sh symlinks it as the openroad fallback; on this host the PATH openroad wrapper does not forward PLATFORM_DIR, so the smoke test passes only via openroad-docker.sh (run with the host openroad off PATH). Not taken: scripts/spice_lef_parsing.py (unrelated), docs/environment.md and verification/check_pins.py (the setup script's comments point at them; this repo records pins in flow/smoke/records/environment.json instead)."
+    }
+  ]
+}
