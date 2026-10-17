@@ -1,0 +1,39 @@
+name: klt signoff
+
+# This block's T1 tier state is graded, not hand-read. On every push and PR,
+# re-attest the item 10 inventory and re-grade the block manifest, and fail if
+# either committed record (manifests/item10.attestation.json,
+# manifests/sky130-adpll.signoff.json) no longer reproduces. Whoever changes a
+# cited artifact, the manifest or the vendored checklist regenerates the
+# records in the same PR. No path filter: a stale record must fail on any push.
+#
+# See manifests/README.md for the klt pin and the regeneration commands.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pinned to a klayout-tools commit: the latest PyPI release (0.7.0) has
+      # no `klt signoff --attest`, which item 10 needs. Keep in step with
+      # manifests/README.md.
+      - name: Install pinned klt
+        run: pip install "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@267ea83a0510bcb61d2956058095201c0f481ff7"
+
+      - name: Check committed signoff records reproduce
+        run: sh manifests/check-signoff.sh

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "t1_item": 10,
+  "summary": "T1 item 10 (Repo hygiene): 5/5 attestation checks passed (klt signoff --attest)",
+  "source": "manifests/item10.inventory.json",
+  "attestation": {
+    "producer": "klt signoff --attest",
+    "inventory_schema_version": 1,
+    "hash_algorithm": "sha256-raw-bytes",
+    "check_count": 5,
+    "passed_count": 5,
+    "checks": [
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": ".github/workflows/signoff.yml",
+        "passed": true,
+        "content_hash": "sha256:78d5718ded159c38927aa3a3b4c074c57397351c043c23600fe66cf64cad4536"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "LICENSE",
+        "passed": true,
+        "content_hash": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "README.md",
+        "passed": true,
+        "content_hash": "sha256:3ac23c23e33dbb16292a20d683b29426f8eb36ca13d90259a887419a3bbb65fe"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "manifests/check-signoff.sh",
+        "passed": true,
+        "content_hash": "sha256:fd66e962cb8aea224102da34753cd3e095e5976122fa87d1f5a74a83b560cefb"
+      },
+      {
+        "check": "command",
+        "role": "audit",
+        "name": "no-placeholder-scripts",
+        "argv": [
+          "sh",
+          "-c",
+          "! grep -n 'No .* configured' package.json"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true
+      }
+    ]
+  },
+  "provenance": {
+    "klt_version": "0.7.1.dev1771+g267ea83a0510",
+    "klayout_version": null,
+    "pdk": null,
+    "deck": null,
+    "input": {
+      "path": {
+        "path": "manifests/item10.inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:e19bd1644a18dea30a4ddcb7d96cc80ed4c343d853daee73719316808067dd1d"
+    }
+  }
+}
