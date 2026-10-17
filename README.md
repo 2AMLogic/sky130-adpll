@@ -66,6 +66,16 @@ TDC characterized post-layout → full loop simulated post-layout across PVT →
 layout DRC/LVS-clean → shuttle seat → measured silicon. **Current position:
 pre-spec.**
 
+## Cold start
+
+```bash
+./scripts/setup-env.sh && source .venv/bin/activate   # pinned klt, Yosys, sky130A; fails on an open_pdks revision mismatch
+./scripts/openroad-smoke-test.sh                       # OpenROAD smoke (docker route if openroad is not on PATH)
+```
+
+Digital smoke: `flow/smoke/`. Cell SPICE smoke: `sim/pdk-smoke/`. Versions and
+commit: `flow/smoke/records/environment.json`. Vendored scripts: `reuse.lock.json`.
+
 ## Repo layout
 
 ```

@@ -1,0 +1,31 @@
+{
+  "schema": "sky130-adpll.environment-record/1",
+  "issue": "2AMLogic/sky130-adpll#3",
+  "recorded_on": "2026-10-17",
+  "claim": "Toolchain bring-up smoke only. Simulated/synthesized figures here are toolchain proof, not design results; nothing is measured.",
+  "repo_commit_base": "6067a8a740f8ba448324fbcc70a5b3e1ecaad599",
+  "pdk": {
+    "variant": "sky130A",
+    "open_pdks": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7",
+    "ciel": "2.6.1",
+    "verified_by": "scripts/setup-env.sh (SOURCES file check)"
+  },
+  "tools": {
+    "klt_pinned_synth_par": "0.6.0+gdac2b5daceb6 (klayout-tools dac2b5daceb69a2068d9d2ee190d7afe37b29af7, installed by scripts/setup-env.sh)",
+    "klt_sim_submit": "0.7.1.dev1755+gdce956c3c399 (host install; the pinned 0.6.0 ran the same request locally instead of on the batch fleet, see sim/pdk-smoke/README.md)",
+    "yosys": "0.68 (YoWASP 0.68.0.0.post1208, yosys.wasm sha256 e37a7e65e3fa4efbbd64a9c1b0e906be16cdc6c4d5273109d17537f78449f38c)",
+    "openroad": "26Q3-1510-g6cb3f2b704 (docker route, scripts/openroad-docker.sh; digest sha256:ebc8142da6d65d1a1e9a528aa2cedcde356243465dd859af8d3ade51075f8cb2 for the smoke test; klt place-and-route used the host openroad wrapper at the same openroad version)",
+    "ngspice": "42 (batch fleet worker; client ngspice 42 as well)",
+    "cocotb": "2.1.0 (installed unpinned by scripts/setup-env.sh)",
+    "icarus_verilog": "13.0"
+  },
+  "runs": {
+    "openroad_smoke": "scripts/openroad-smoke-test.sh: PASS (docker route)",
+    "synthesis": "flow/smoke/records/synthesize-output.json (pinned klt 0.6.0 + pinned Yosys)",
+    "place_and_route": "flow/smoke/records/par-output.json (+ smoke_counter.{def,v,gds}); absolute host paths rewritten to repo-relative / $PDK_ROOT after the run",
+    "cell_spice": "sim/pdk-smoke/records.json: tt/ff/ss at 1.80 V, 27 C, batch job klt-sim-57a3aa314ac4; same rewrite applied"
+  },
+  "not_done": [
+    "Mismatch refusal of scripts/setup-env.sh was not exercised end to end: provoking it needs a second sky130 PDK fetch via ciel."
+  ]
+}
