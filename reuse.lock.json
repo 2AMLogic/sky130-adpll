@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "references": [
+    {
+      "source": "2AMLogic/sky130-modexp",
+      "commit": "18f4d8fd5e104f64550817a5468f262c159f734f",
+      "mode": "referenced",
+      "paths": [
+        "verification/_dut.py",
+        "verification/test_modexp.py",
+        "verification/check_records.py",
+        "verification/gate-level/"
+      ],
+      "note": "Harness shape only (cocotb DUT helpers, record checker, gate-level pattern). No file content is vendored; the runner and checker here are new and much smaller. Pins to be revisited with the environment pin (#3)."
+    }
+  ]
+}
