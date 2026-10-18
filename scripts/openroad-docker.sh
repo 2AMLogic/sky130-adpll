@@ -5,7 +5,7 @@
 #
 # Why a container, not a native install: `openroad` has no Homebrew formula
 # and no common Linux-distro package as of this writing (see
-# docs/environment.md's "OpenROAD" section). OpenROAD-flow-scripts (ORFS)
+# the pinned-version note below). OpenROAD-flow-scripts (ORFS)
 # publishes an official Docker image with a matched, pinned OpenROAD +
 # Yosys + KLayout toolchain -- the route
 # `2AMLogic/klayout-tools`'s `docs/design/openroad-invocation-survey.md`
@@ -43,7 +43,7 @@
 # the container boundary. Set OPENROAD_DOCKER_MOUNT to bind-mount a
 # different host directory instead of $(pwd).
 #
-# -- pinned version -- keep in sync with docs/environment.md -----------------
+# -- pinned version -- keep in sync with flow/smoke/records/environment.json --
 # `openroad -version` inside this image reports 26Q3-1260-g06a5a02279.
 OPENROAD_DOCKER_IMAGE="${OPENROAD_DOCKER_IMAGE:-openroad/orfs:26Q3-296-gda37dce1c}"
 OPENROAD_DOCKER_DIGEST="${OPENROAD_DOCKER_DIGEST:-sha256:ebc8142da6d65d1a1e9a528aa2cedcde356243465dd859af8d3ade51075f8cb2}"
@@ -55,7 +55,7 @@ if ! command -v docker >/dev/null 2>&1; then
   echo "FATAL: docker not found on \$PATH." >&2
   echo "  openroad is provisioned on this host only via the pinned" >&2
   echo "  ${OPENROAD_DOCKER_IMAGE} Docker image -- install Docker (or Docker" >&2
-  echo "  Desktop) and re-run. See docs/environment.md's 'OpenROAD' section." >&2
+  echo "  Desktop) and re-run. See the pinned-version note in this script." >&2
   exit 1
 fi
 
@@ -82,8 +82,7 @@ MOUNT_DIR="${OPENROAD_DOCKER_MOUNT:-$(pwd)}"
 # both this resolution and the fallback ladder below without any extra
 # handling here.
 #
-# Falls back to the previous existence-only ladder (docs/environment.md /
-# klayout_tools/pdk.py resolution order: $PDK_ROOT env var, then ~/.ciel,
+# Falls back to the previous existence-only ladder (klayout_tools/pdk.py resolution order: $PDK_ROOT env var, then ~/.ciel,
 # then ~/.volare) only when `klt`/`python3` are not invocable from this
 # shell -- this script is documented above as runnable standalone. Best
 # effort throughout: if nothing resolves, no extra mount is added and a

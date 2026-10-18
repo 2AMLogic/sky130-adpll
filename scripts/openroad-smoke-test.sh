@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # scripts/openroad-smoke-test.sh -- trivial end-to-end proof that `openroad`
-# actually executes on this host (issue #13's acceptance criterion: "not
+# actually executes on this host (acceptance criterion: "not
 # merely that the binary answers -version").
 #
 # Drives OpenROAD's Tcl engine through a real (if tiny) slice of the P&R
 # flow -- LEF parse, netlist link, floorplan initialization, DEF write --
 # against a hand-written one-cell netlist (scripts/openroad-smoke/smoke_top.v),
 # not this repo's RTL. This is toolchain verification only; it produces no
-# P&R measurement for rtl/modexp.v (that is issue #7's job) and writes
+# P&R measurement for this repo's ADPLL RTL and writes
 # nothing under verification/ or layout/.
 #
 # Usage:

@@ -1,4 +1,4 @@
-# Toolchain smoke test for issue #13 (run by scripts/openroad-smoke-test.sh).
+# Toolchain smoke test (run by scripts/openroad-smoke-test.sh).
 #
 # Proves the pinned openroad/orfs container's `openroad` binary actually
 # executes -- not merely that it answers `-version` -- by driving a real,
@@ -9,8 +9,8 @@
 # This is deliberately NOT a P&R measurement run: the netlist is one
 # hand-written standard-cell instance, not synthesized RTL, and none of its
 # numbers (die area, utilization, instance count) are evidence about this
-# repo's actual design. Real P&R measurements against rtl/modexp.v belong to
-# issue #7.
+# repo's actual design. Real P&R measurements against this repo's ADPLL RTL belong to
+# a separate run.
 # Relative paths here (not e.g. `/workspace/smoke_top.v`) deliberately --
 # scripts/openroad-docker.sh bind-mounts the host working directory at its
 # *own* absolute path (needed so `klt place-and-route`'s absolute-path Tcl

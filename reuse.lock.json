@@ -9,27 +9,27 @@
       "files": [
         {
           "path": "scripts/setup-env.sh",
-          "sha256": "30876d97bb62bb6c93c5fc84054cdf45c53ceb5ffb945e9d4a660997bfcb4c04"
+          "sha256": "32398fc69c34b43c8638517a722f37421f28d8aec2c3dc414a79ab1f4b6fc736"
         },
         {
           "path": "scripts/openroad-smoke-test.sh",
-          "sha256": "7b1bdb292a1335f83cc9e4b7ece0c432aafb3c27e883445bb78544ef6dbc4c35"
+          "sha256": "461f2aa46113090e013d07e3539c293e01e6082eacb486de2145f17e7673a01c"
         },
         {
           "path": "scripts/openroad-smoke/smoke.tcl",
-          "sha256": "cc11743af4dc3b1b59dbebf002d47898ad0a21c6d22569648caf907b1e71ffe5"
+          "sha256": "54b5f503df4381dc0fe7b36bffa119a2bbd22827aee0ac2267369191136cb908"
         },
         {
           "path": "scripts/openroad-smoke/smoke_top.v",
-          "sha256": "cc6e366f34aff8a9b3a41b3b06ef7bfc23bbf00388fb6d47fb856ec1aa1a3a07"
+          "sha256": "cec36025fc4542f7a9c8556c7985d1f1216a007f2fb5d0b93794655bd1bbdad8"
         },
         {
           "path": "scripts/openroad-docker.sh",
-          "sha256": "1e18bb014c2fa0a05e27075e0ecae5518ba90ee17f021dc3b6395e9d5e8ab0b4"
+          "sha256": "2d9a6dc4504acfd2f4292713c2bcdc32b03031ee09abeddfd7e6205c134c4f8f"
         }
       ],
-      "diverged": false,
-      "notes": "Verbatim copies, no local edits. openroad-docker.sh is taken because openroad-smoke-test.sh needs it as its docker route and setup-env.sh symlinks it as the openroad fallback; on this host the PATH openroad wrapper does not forward PLATFORM_DIR, so the smoke test passes only via openroad-docker.sh (run with the host openroad off PATH). Not taken: scripts/spice_lef_parsing.py (unrelated), docs/environment.md and verification/check_pins.py (the setup script's comments point at them; this repo records pins in flow/smoke/records/environment.json instead)."
+      "diverged": true,
+      "notes": "Vendored at the pinned commit, then locally edited (comments and echo messages only, no logic change) to drop references to sibling-repo files (docs/environment.md, rtl/modexp.v, sibling issue numbers); sha256 values are of the local edited files. openroad-docker.sh is taken because openroad-smoke-test.sh needs it as its docker route and setup-env.sh symlinks it as the openroad fallback; on this host the PATH openroad wrapper does not forward PLATFORM_DIR, so the smoke test passes only via openroad-docker.sh (run with the host openroad off PATH). Not taken: scripts/spice_lef_parsing.py (unrelated), docs/environment.md and verification/check_pins.py (the setup script's comments point at them; this repo records pins in flow/smoke/records/environment.json instead)."
     },
     {
       "source": "2AMLogic/sky130-modexp",

@@ -20,7 +20,7 @@
 #      individually reported missing (see step 4's summary) -- this is not
 #      itself a failure, since PDK-heavy legs (synthesis, P&R) are
 #      documented as locally-run-and-recorded, not a CI/setup requirement.
-#      P&R specifically needs `openroad`; see docs/environment.md.
+#      P&R specifically needs `openroad`; see the openroad fallback below.
 #   1  venv creation, klt install, pinned-yosys install/verification, or PDK
 #      fetch failed.
 #
@@ -29,17 +29,15 @@
 #   ./scripts/setup-env.sh --pdk-root /custom/path
 #
 # The resolved versions this script pins are recorded in
-# docs/environment.md -- update both together if you re-pin.
+# flow/smoke/records/environment.json -- update both together if you re-pin.
 
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}" || exit 1
 
-# --- pinned versions -- keep in sync with docs/environment.md -------------
-# Enforced by verification/check_pins.py (npm run lint / CI `records` job):
-# every constant in this block must appear in that doc's "Pinned versions"
-# table. Keep assignments in plain NAME="value" form so it can parse them.
+# --- pinned versions -- keep in sync with flow/smoke/records/environment.json ---
+# Keep assignments in plain NAME="value" form so tooling can parse them.
 KLT_REPO="https://github.com/2AMLogic/klayout-tools"
 KLT_REV="dac2b5daceb69a2068d9d2ee190d7afe37b29af7"
 CIEL_VERSION="2.6.1"
@@ -230,8 +228,8 @@ if [ "${WASM_SHA}" != "${YOWASP_YOSYS_WASM_SHA256}" ]; then
   echo "     #141 measured 1.06 ns of setup slack at ss_n40C_1v28). Do NOT"
   echo "     mint evidence records from this environment."
   echo "  -> re-pin deliberately (update YOWASP_YOSYS_VERSION and"
-  echo "     YOWASP_YOSYS_WASM_SHA256 here and the matching row in"
-  echo "     docs/environment.md together), or remove ${VENV_DIR} and re-run."
+  echo "     YOWASP_YOSYS_WASM_SHA256 here and the matching entry in"
+  echo "     flow/smoke/records/environment.json together), or remove ${VENV_DIR} and re-run."
   exit 1
 fi
 echo "yosys.wasm: sha256:${WASM_SHA} (matches pin)"
@@ -300,7 +298,7 @@ else
 fi
 
 # openroad: prefer a native install already on $PATH. Otherwise, openroad has
-# no Homebrew formula or common-distro package (see docs/environment.md), so
+# no Homebrew formula or common-distro package (see scripts/openroad-docker.sh), so
 # fall back to the pinned openroad/orfs Docker image via
 # scripts/openroad-docker.sh, symlinked into .venv/bin so activating the venv
 # makes `openroad` resolve the same way iverilog/yosys do. This only installs
@@ -313,7 +311,7 @@ elif command -v docker >/dev/null 2>&1; then
   chmod +x "${VENV_DIR}/bin/openroad"
   echo "  openroad: not native, but docker is available -- symlinked"
   echo "    ${VENV_DIR}/bin/openroad -> scripts/openroad-docker.sh (pinned"
-  echo "    openroad/orfs image; see docs/environment.md). After"
+  echo "    openroad/orfs image; see scripts/openroad-docker.sh). After"
   echo "    'source ${VENV_DIR}/bin/activate', 'openroad -version' resolves"
   echo "    through Docker (first call pulls the image)."
 else
@@ -336,9 +334,9 @@ if [ "${#missing[@]}" -gt 0 ]; then
         echo "    either, so scripts/openroad-docker.sh's fallback route"
         echo "    couldn't be wired up automatically. Install Docker (or"
         echo "    Docker Desktop), then re-run this script -- or see"
-        echo "    docs/environment.md's 'OpenROAD' section for the pinned"
-        echo "    image, its digest, and a from-source alternative."
-        echo "    Required for 'klt place-and-route' -- see docs/environment.md."
+        echo "    scripts/openroad-docker.sh for the pinned image and"
+        echo "    flow/smoke/records/environment.json."
+        echo "    Required for 'klt place-and-route' -- see scripts/openroad-docker.sh."
         ;;
     esac
   done
