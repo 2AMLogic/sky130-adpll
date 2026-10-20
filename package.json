@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "worktree:return": "./.loom/scripts/worktree-return.sh",
-    "check:ci": "echo 'No CI checks configured. Customize this script for your project.' && exit 0",
-    "check:all": "echo 'No checks configured. Customize this script for your project.' && exit 0",
-    "test": "echo 'No tests configured. Customize this script for your project.' && exit 0",
-    "lint": "echo 'No linter configured. Customize this script for your project.' && exit 0"
+    "lint": "scripts/lint-rtl.sh",
+    "test": ".venv/bin/python verification/run_tests.py",
+    "check:records": ".venv/bin/python verification/check_records.py",
+    "check:ci": "npm run lint && npm run test && npm run check:records",
+    "check:all": "npm run check:ci"
   }
 }
