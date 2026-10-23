@@ -1,0 +1,7 @@
+* pdk-smoke: one sky130_fd_sc_hd__inv_1 driven by a pulse into a fixed load.
+* Toolchain proof only (issue #3), not a design.
+.include $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+Vdd vdd 0 1.8
+Vin in 0 PULSE(0 1.8 1n 100p 100p 2n 4n)
+Xinv in 0 0 vdd vdd out sky130_fd_sc_hd__inv_1
+Cload out 0 10f

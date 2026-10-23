@@ -1,0 +1,85 @@
+{
+  "schema_version": 2,
+  "engine": "yosys",
+  "engine_version": "0.68",
+  "hdl_toplevel": "smoke_counter",
+  "run_id": "run-82297b77fede4100973a571101b37c4a",
+  "status": "ok",
+  "instance_count": 10,
+  "area_um2": 143.888,
+  "sequential_area_um2": 100.096,
+  "instance_counts_by_type": {
+    "sky130_fd_sc_hd__dfrtp_1": 4,
+    "sky130_fd_sc_hd__inv_1": 1,
+    "sky130_fd_sc_hd__nand2_1": 1,
+    "sky130_fd_sc_hd__nand3_2": 1,
+    "sky130_fd_sc_hd__xnor2_1": 2,
+    "sky130_fd_sc_hd__xor2_1": 1
+  },
+  "leakage_power_nw": 0.06451318,
+  "leakage_by_type_nw": {
+    "sky130_fd_sc_hd__dfrtp_1": 0.01165228,
+    "sky130_fd_sc_hd__inv_1": 0.005326682,
+    "sky130_fd_sc_hd__nand2_1": 0.00211796,
+    "sky130_fd_sc_hd__nand3_2": 0.002050938,
+    "sky130_fd_sc_hd__xnor2_1": 0.002065353,
+    "sky130_fd_sc_hd__xor2_1": 0.004277774
+  },
+  "timing": null,
+  "sta": null,
+  "structural": {
+    "latches": 0,
+    "expected_latches": 0,
+    "unexpected_latches": 0,
+    "comb_loops": 0,
+    "multi_driven": 0,
+    "has_critical": false
+  },
+  "warnings": {
+    "total": 1,
+    "by_category": {
+      "timing_unavailable": 1
+    },
+    "representatives": [
+      {
+        "category": "timing_unavailable",
+        "count": 1,
+        "text": "The current invocation's ABC log has no readable stime summary; timing is null and any requested clock target remains unverified."
+      }
+    ]
+  },
+  "netlist_path": {
+    "path": "flow/smoke/.klt/synthesize/run-82297b77fede4100973a571101b37c4a/smoke_counter_synth.v",
+    "scope": "repo"
+  },
+  "script_path": {
+    "path": "flow/smoke/.klt/synthesize/run-82297b77fede4100973a571101b37c4a/synth_smoke_counter.ys",
+    "scope": "repo"
+  },
+  "run_script_path": {
+    "path": "flow/smoke/.klt/synthesize/run-82297b77fede4100973a571101b37c4a/synth_smoke_counter.run.ys",
+    "scope": "repo"
+  },
+  "provenance": {
+    "klt_version": "0.6.0+gdac2b5daceb6",
+    "klayout_version": "0.30.12",
+    "pdk": {
+      "name": "sky130A",
+      "source": "PDK_ROOT environment variable",
+      "version": "open_pdks f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+    },
+    "deck": {
+      "name": "sky130_fd_sc_hd__tt_025C_1v80",
+      "content_hash": "sha256:8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+      "released": false
+    },
+    "input": {
+      "content_hash": "sha256:5291ca27d1ba174c9b597c328a024825d92bde8f2abdbde511be057c888851a1",
+      "role": "source"
+    }
+  },
+  "equivalence": null,
+  "restructuring": null,
+  "arithmetic": null,
+  "baseline": null
+}

@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "worktree:return": "./.loom/scripts/worktree-return.sh",
-    "check:ci": "sh manifests/check-signoff.sh",
-    "check:all": "sh manifests/check-signoff.sh"
+    "lint": "scripts/lint-rtl.sh",
+    "test": ".venv/bin/python verification/run_tests.py",
+    "check:records": ".venv/bin/python verification/check_records.py",
+    "check:signoff": "sh manifests/check-signoff.sh",
+    "check:ci": "npm run lint && npm run test && npm run check:records && npm run check:signoff",
+    "check:all": "npm run check:ci"
   }
 }

@@ -1,0 +1,41 @@
+{
+  "engine": "ngspice",
+  "models": {
+    "pdk": "sky130A",
+    "lib": "libs.tech/combined/sky130.lib.spice"
+  },
+  "netlist": "inv_tb.spice",
+  "analysis": {
+    "kind": "tran",
+    "args": "10p 8n"
+  },
+  "corners": {
+    "process": [
+      "tt",
+      "ff",
+      "ss"
+    ],
+    "temperature_c": [
+      27.0
+    ],
+    "supply_v": {
+      "vdd": [
+        1.8
+      ]
+    }
+  },
+  "measurements": [
+    {
+      "name": "tphl",
+      "spice": ".meas tran tphl TRIG v(in) VAL=0.9 RISE=1 TARG v(out) VAL=0.9 FALL=1"
+    },
+    {
+      "name": "tplh",
+      "spice": ".meas tran tplh TRIG v(in) VAL=0.9 FALL=1 TARG v(out) VAL=0.9 RISE=1"
+    }
+  ],
+  "options": {
+    "keep_artifacts": true,
+    "timeout_s": 600
+  }
+}

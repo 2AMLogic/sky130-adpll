@@ -13,6 +13,9 @@ sim/build/
 flow/build/
 # local klt install, created by the setup script
 .venv/
+# klt working directories (synthesis / P&R / sim scratch)
+.klt/
+sim/pdk-smoke/build/
 # >>> loom-managed (do not edit) >>>
 # Loom runtime state (don't commit these)
 .loom-in-use
