@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-10-24
+
+- **PR #7**: ci: add klt signoff manifest, committed T1 record and drift check
+- **Issue #5** (closed): Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
+
 ### 2026-10-21
 
 - **PR #15**: Bump Repo Skills 0.24.3 -> 0.24.7
