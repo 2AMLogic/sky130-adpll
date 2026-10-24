@@ -1,0 +1,26 @@
+# Work Log
+
+Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
+
+### 2026-10-21
+
+- **PR #15**: Bump Repo Skills 0.24.3 -> 0.24.7
+
+### 2026-10-20
+
+- **PR #12**: fix: wire package.json lint/test/check:ci to real verification commands
+- **Issue #11** (closed): Replace always-pass package.json gates (check:ci/test/lint) with the real checks
+
+### 2026-10-18
+
+- **PR #14**: docs: drop stale sibling-repo references from vendored smoke scripts
+- **Issue #13** (closed): Remove stale sibling-repo references from smoke scripts (missing environment doc, modexp RTL)
+
+### 2026-10-17
+
+- **PR #10**: feat: pin toolchain and add digital and cell-SPICE smoke records
+- **PR #9**: docs(spec): propose target spec, decision record and placement approach
+- **PR #8**: feat: add cocotb/Icarus harness with negative control, RTL lint gate and CI job
+- **PR #1**: chore(loom): Install Loom 0.19.1181
+- **Issue #4** (closed): Testbench harness and RTL lint skeleton: cocotb + Icarus runner, negative control, CI (T1 item 9)
+- **Issue #3** (closed): Pin the sky130 environment (adopt sky130-modexp's setup) and commit digital and cell-level SPICE smoke runs
