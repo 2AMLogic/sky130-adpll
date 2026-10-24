@@ -18,14 +18,17 @@ by arithmetic from a spec row (shown), **[A]** an assumption of this record, or
 Cited designs are other people's silicon on other processes; none is a
 capability demonstrated here.
 
-**Source verification status.** Bibliographic details of S2, S3, S3b and S5 were
-checked against index records (IEEE Xplore / publisher / institutional listings) on
-2026-10-24; only abstracts and records were read, **not full texts**. Any
-figure that would need a full-text read (for example a specific power or
-jitter value of a cited design) is therefore *not* quoted and is listed as a
-GAP. S1 is named from background knowledge and was **not**
-re-verified in this pass; a reviewer must resolve it before relying on it
-(see Validation of this record).
+**Source verification status.** Bibliographic details of S1, S2, S3, S4 and S5
+were checked against index records (IEEE Xplore / publisher / institutional
+listings / the DOI registry) on 2026-10-24; only abstracts and records were
+read, **not full texts**. For S1 the DOI 10.1109/JSSC.2005.857417 was resolved
+at doi.org (it redirects to IEEE Xplore document 1546223) and the Crossref
+record supplied authors, title, venue, volume, issue, pages and date; no
+abstract was available there, so S1 is cited for what its title and venue
+establish and nothing more. Any figure that would need a full-text read (for
+example a specific power or jitter value, or the process node, of a cited
+design) is therefore *not* quoted and is listed as a GAP. Source numbering was
+made contiguous (the former S3b is now S4).
 
 ## 1. Selection criteria (derived from the use case, before scoring)
 
@@ -57,10 +60,11 @@ which is a spec change needing the operator (see §6).
 **Mechanism.** A chain of delay cells timestamps the reference edge against the
 DCO edge; the position is a multi-bit phase error feeding a linear PI filter.
 Resolution is one cell delay; range is the chain length. [S1] demonstrates this
-class in an all-digital PLL for a mobile transmitter, and [S2] a 90 nm TDC whose
-resolution step is one inverter delay, with self-calibration and measured INL
-reported in the abstract (the specific numbers are in S2 and were not
-full-text verified; GAP for quoting). Both are 90 nm, not sky130.
+class in an all-digital PLL and transmitter for mobile phones, and [S2] a 90 nm
+TDC whose resolution step is one inverter delay, with self-calibration and
+measured INL reported in the abstract (the specific numbers are in S2 and were
+not full-text verified; GAP for quoting). Neither is sky130; the process node
+of S1 was not read from its record (GAP).
 
 **Strengths.**
 - Linear regime: a quantised-phase PI loop has a conventional linear model
@@ -112,7 +116,7 @@ emphasis on loop delay (abstract-level; equations not full-text verified).
   a behavioural + transient-noise model.
 - **Effective gain is amplitude-dependent**, so the loop's closed-loop
   bandwidth (row 7) and jitter transfer depend on input jitter; a linearised
-  analysis has validity limits [S3b, record verified only]. A PVT-wide
+  analysis has validity limits [S4, record verified only]. A PVT-wide
   guarantee of lock time (row 10) needs simulation over C27, not a formula.
 - Dithering/limit cycles interact with the DCO's 2-bit sigma-delta dither
   (decision 2 in 0001); a bang-bang loop would need that dither re-examined.
@@ -205,15 +209,19 @@ is authorised by this record.
 
 ## 8. Validation of this record (what a reviewer should check)
 
-- Resolve S1 (not re-verified): give full citation or drop it.
+- S1 was resolved on 2026-10-24 against the DOI registry and IEEE Xplore
+  record (see Source verification status); confirm the DOI resolves to the
+  cited paper.
 - Confirm arithmetic: 1/150 MHz = 6.67 ns; /40 ps = 167; /60 ps = 111.
 - Confirm no row of `spec.md` or the README changed (`git diff --stat`).
 
 ## References
 
-- [S1] R. B. Staszewski et al., all-digital PLL for a mobile transmitter
-  (TDC-based ADPLL, 90 nm). Named from background knowledge; **not
-  re-verified** in this pass.
+- [S1] R. B. Staszewski et al., "All-digital PLL and transmitter for mobile
+  phones," IEEE JSSC, vol. 40, no. 12, pp. 2469–2482, Dec. 2005, DOI
+  10.1109/JSSC.2005.857417. Record verified (DOI resolves to
+  https://ieeexplore.ieee.org/document/1546223; metadata from Crossref);
+  no abstract read.
 - [S2] R. B. Staszewski et al., "1.3 V 20 ps time-to-digital converter for
   frequency synthesis in 90-nm CMOS," IEEE TCAS-II, vol. 53, no. 3,
   pp. 220–224, 2006, DOI 10.1109/TCSII.2005.858754. Record verified; abstract
@@ -221,7 +229,7 @@ is authorised by this record.
 - [S3] N. Da Dalt, "A design-oriented study of the nonlinear dynamics of
   digital bang-bang PLLs," IEEE TCAS-I, vol. 52, no. 1, pp. 21–31, Jan. 2005.
   Record verified; abstract only.
-- [S3b] N. Da Dalt, "Linearized analysis of a digital bang-bang PLL and its
+- [S4] N. Da Dalt, "Linearized analysis of a digital bang-bang PLL and its
   validity limits applied to jitter transfer and jitter generation," IEEE
   TCAS-I, vol. 55, no. 11, 2008. Record verified.
 - [S5] A. Hajimiri, S. Limotyrakis, T. H. Lee, "Jitter and phase noise in ring
