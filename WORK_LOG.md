@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-10-24
 
+- **PR #22**: docs(spec): add proposed phase-detector comparison record 0002
+- **Issue #20** (closed): Prepare the multi-bit TDC vs bang-bang phase-detector comparison (authorized on #2, 2026-10-19)
 - **PR #7**: ci: add klt signoff manifest, committed T1 record and drift check
 - **Issue #5** (closed): Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
 

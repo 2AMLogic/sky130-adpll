@@ -20,6 +20,7 @@ _None._
 `loom:important`; taken before unlabelled work.
 
 - **#2**: Draft and ratify the target spec
+- **#19**: Open the spec ratification PR for the numeric and architecture targets, and get both key reviews
 
 ## Ready
 
@@ -31,13 +32,13 @@ _None._
 
 Issues currently being built (`loom:building`).
 
-_None._
+- **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
-_None._
+- **#21**: ratification: install ee-key and market-key reviewer trees
 
 ## Approved (Awaiting Merge)
 
@@ -50,6 +51,7 @@ _None._
 Issues carrying `loom:curated`.
 
 - **#2**: Draft and ratify the target spec *(curated)*
+- **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -65,12 +67,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 1 |
+| Important | 2 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 0 |
-| PRs awaiting review | 0 |
+| In Progress (`loom:building`) | 1 |
+| PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 1 |
+| Curated | 2 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
