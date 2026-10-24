@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 10,
+  "description": "Repo hygiene inventory for sky130-adpll. Lists only files that exist today; verification/ CI is added when #4 lands.",
+  "hygiene": [
+    "README.md",
+    "LICENSE",
+    ".github/workflows/signoff.yml",
+    "manifests/check-signoff.sh"
+  ],
+  "checks": [
+    {
+      "name": "no-placeholder-scripts",
+      "argv": ["sh", "-c", "! grep -n 'No .* configured' package.json"]
+    }
+  ]
+}
