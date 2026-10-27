@@ -4,7 +4,7 @@
 # environment.
 #
 #   1. Creates a local .venv (Python) and installs `klayout-tools` (`klt`)
-#      into it at the pinned git revision below.
+#      into it at the pinned release version below.
 #   2. Installs the pinned Yosys build (YoWASP wheel) into that .venv and
 #      verifies its WebAssembly module's sha256 -- the mapper identity that
 #      `yosys -V` does NOT report (issue #143) -- then exposes it as
@@ -38,8 +38,7 @@ cd "${REPO_ROOT}" || exit 1
 
 # --- pinned versions -- keep in sync with flow/smoke/records/environment.json ---
 # Keep assignments in plain NAME="value" form so tooling can parse them.
-KLT_REPO="https://github.com/2AMLogic/klayout-tools"
-KLT_REV="dac2b5daceb69a2068d9d2ee190d7afe37b29af7"
+KLT_VERSION="0.8.0"
 CIEL_VERSION="2.6.1"
 CIEL_PDK_FAMILY="sky130"
 CIEL_SKY130_VERSION="f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
@@ -136,7 +135,7 @@ if [ ! -x "${VENV_PY}" ]; then
 fi
 
 echo
-echo "== 2/4 klayout-tools (klt) @ ${KLT_REV:0:12} =="
+echo "== 2/4 klayout-tools (klt) ${KLT_VERSION} =="
 if ! "${VENV_PY}" -m pip --version >/dev/null 2>&1; then
   echo "FATAL: pip is not available inside ${VENV_DIR}."
   echo "  -> remove ${VENV_DIR} and re-run this script (venv bootstrap likely"
@@ -150,19 +149,19 @@ if ! "${VENV_PIP}" install --quiet --upgrade pip; then
 fi
 
 if ! "${VENV_PIP}" install --quiet \
-    "klayout-tools @ git+${KLT_REPO}@${KLT_REV}" cocotb "ciel==${CIEL_VERSION}"; then
+    "klayout-tools==${KLT_VERSION}" cocotb "ciel==${CIEL_VERSION}"; then
   echo "FATAL: failed to install klayout-tools/cocotb/ciel into ${VENV_DIR}."
-  echo "  -> common causes: no network access to ${KLT_REPO}, or no C/C++"
+  echo "  -> common causes: no network access to PyPI, or no C/C++"
   echo "     toolchain for a dependency's native build (install Xcode CLI"
   echo "     tools on macOS: 'xcode-select --install'; build-essential on"
   echo "     Debian/Ubuntu)."
   echo "  -> re-run with the venv's own pip for a full traceback:"
-  echo "       ${VENV_PIP} install \"klayout-tools @ git+${KLT_REPO}@${KLT_REV}\" cocotb ciel==${CIEL_VERSION}"
+  echo "       ${VENV_PIP} install \"klayout-tools==${KLT_VERSION}\" cocotb ciel==${CIEL_VERSION}"
   exit 1
 fi
 INSTALLED_KLT_VERSION="$("${VENV_PY}" -m klayout_tools.cli --version 2>/dev/null || true)"
 INSTALLED_KLT_VERSION="${INSTALLED_KLT_VERSION#klt }"
-echo "installed: klt ${INSTALLED_KLT_VERSION:-(version unknown)} from ${KLT_REPO}@${KLT_REV:0:12}"
+echo "installed: klt ${INSTALLED_KLT_VERSION:-(version unknown)} from PyPI (pinned ${KLT_VERSION})"
 echo "activate with: source ${VENV_DIR}/bin/activate"
 
 echo
