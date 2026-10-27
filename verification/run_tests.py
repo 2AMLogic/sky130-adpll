@@ -27,6 +27,26 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 CONTROL = "negative_control"
+RTL = REPO / "rtl"
+
+# DUT registry: name -> (sources, toplevel, test module, smoke testcases).
+# Every module also carries a `negative_control`. The placeholder is the
+# harness self-check and stays first.
+SUITES = {
+    "placeholder": ([HERE / "placeholder/counter.v"], "counter", "test_counter",
+                    "test_counter_counts,test_counter_wraps", HERE / "placeholder"),
+    "loop_filter": ([RTL / "adpll_loop_filter.v"], "adpll_loop_filter", "test_loop_filter",
+                    "test_step_response,test_integrator_saturation,test_hold_without_en", HERE),
+    "divider": ([RTL / "adpll_divider.v"], "adpll_divider", "test_divider",
+                "test_ratio_200mhz,test_ratio_100mhz_fallback,test_ratio_range", HERE),
+    "lock_detect": ([RTL / "adpll_lock_detect.v"], "adpll_lock_detect", "test_lock_detect",
+                    "test_lock_asserts_after_64,test_run_resets,test_deassert_hysteresis", HERE),
+    "dco_code": ([RTL / "adpll_dco_code.v"], "adpll_dco_code", "test_dco_code",
+                 "test_split,test_dither_average,test_fine_saturates", HERE),
+    "top": ([RTL / f"adpll_{m}.v" for m in
+             ("top", "divider", "loop_filter", "lock_detect", "dco_code")],
+            "adpll_top", "test_top", "test_integrates_and_locks", HERE),
+}
 
 
 def sh(*cmd):
@@ -100,16 +120,37 @@ def simulate(args, build_dir, testcase, seed):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--sources", nargs="+", default=[str(HERE / "placeholder/counter.v")])
+    ap.add_argument("--sources", nargs="+", default=None)
     ap.add_argument("--toplevel", default="counter")
     ap.add_argument("--test-module", default="test_counter")
     ap.add_argument("--test-dir", default=str(HERE / "placeholder"))
+    ap.add_argument("--tests", default="test_counter_counts,test_counter_wraps",
+                    help="comma-separated smoke testcases (with --sources)")
+    ap.add_argument("--suite", choices=sorted(SUITES) + ["all"], default="all",
+                    help="registered DUT to run (default: all; ignored with --sources)")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--build-dir", default=str(REPO / "sim/build/verification"))
-    ap.add_argument("--record", default=str(REPO / "sim/build/verification/result.json"))
+    ap.add_argument("--record", default=None,
+                    help="record path (default: <build-dir>/<suite>.json)")
     ap.add_argument("--level", default="rtl", help="rtl | gate (recorded only)")
     args = ap.parse_args()
 
+    if args.sources is not None:
+        return run_one(args, "custom")
+    rc = 0
+    for name in (sorted(SUITES) if args.suite == "all" else [args.suite]):
+        srcs, top, mod, tests, tdir = SUITES[name]
+        a = argparse.Namespace(**vars(args))
+        a.sources, a.toplevel, a.test_module = [str(x) for x in srcs], top, mod
+        a.tests, a.test_dir = tests, str(tdir)
+        a.build_dir = str(Path(args.build_dir) / name)
+        a.record = args.record or str(Path(args.build_dir) / f"{name}.json")
+        print(f"== suite {name} ==")
+        rc |= run_one(a, name)
+    return rc
+
+
+def run_one(args, name):
     seed = args.seed if args.seed is not None else random.randrange(2**31)
     versions = tool_versions()
     build_dir = Path(args.build_dir)
@@ -118,7 +159,7 @@ def main():
     smoke_dir, ctl_dir = build_dir / "smoke", build_dir / "control"
     smoke_dir.mkdir(exist_ok=True)
     ctl_dir.mkdir(exist_ok=True)
-    smoke = simulate(args, smoke_dir, "test_counter_counts,test_counter_wraps", seed)
+    smoke = simulate(args, smoke_dir, args.tests, seed)
     control = simulate(args, ctl_dir, CONTROL, seed)
 
     tests = [dict(t, expected_fail=False) for t in smoke]
@@ -152,13 +193,14 @@ def main():
         "ok": not problems,
         "problems": problems,
     }
-    Path(args.record).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.record).write_text(json.dumps(record, indent=2) + "\n")
+    rec_path = Path(args.record or Path(args.build_dir) / "result.json")
+    rec_path.parent.mkdir(parents=True, exist_ok=True)
+    rec_path.write_text(json.dumps(record, indent=2) + "\n")
     for t in tests:
         print(f"{'ok  ' if t['ok'] else 'BAD '} {t['name']} "
               f"({'expected fail' if t['expected_fail'] else 'expected pass'}, "
               f"{'passed' if t['passed'] else 'failed'})")
-    print(f"record: {args.record}")
+    print(f"record: {rec_path}")
     for p in problems:
         print(f"PROBLEM: {p}", file=sys.stderr)
     return 0 if record["ok"] else 1
