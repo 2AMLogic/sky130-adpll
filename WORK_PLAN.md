@@ -52,6 +52,7 @@ Issues carrying `loom:curated`.
 
 - **#2**: Draft and ratify the target spec *(curated)*
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
+- **#28**: T1 item 1 (design sources): ADPLL RTL (PI loop filter, divider, lock detect, DCO code path) plus synthesized sky130_fd_sc_hd netlist with item-1 attestation *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -72,7 +73,7 @@ _None._
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 2 |
+| Curated | 3 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
