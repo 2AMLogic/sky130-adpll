@@ -2,6 +2,10 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-10-27
+
+- **PR #34**: feat(rtl): add ADPLL loop filter, divider, lock detector, DCO code path and top
+
 ### 2026-10-24
 
 - **PR #26**: docs(spec): verify S1 citation and renumber sources in record 0002
