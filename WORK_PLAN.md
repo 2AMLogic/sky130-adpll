@@ -21,12 +21,13 @@ _None._
 
 - **#2**: Draft and ratify the target spec
 - **#19**: Open the spec ratification PR for the numeric and architecture targets, and get both key reviews
+- **#28**: T1 item 1 (design sources): ADPLL RTL (PI loop filter, divider, lock detect, DCO code path) plus synthesized sky130_fd_sc_hd netlist with item-1 attestation
 
 ## Ready
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#28**: T1 item 1 (design sources): ADPLL RTL (PI loop filter, divider, lock detect, DCO code path) plus synthesized sky130_fd_sc_hd netlist with item-1 attestation
 
 ## In Progress
 
@@ -68,8 +69,8 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 2 |
-| Ready (`loom:issue`) | 0 |
+| Important | 3 |
+| Ready (`loom:issue`) | 1 |
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |

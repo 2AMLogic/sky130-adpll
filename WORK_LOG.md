@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-10-27
 
+- **PR #38**: chore(deps): pin klayout-tools to the 0.8.0 PyPI release
+- **Issue #37** (closed): Bump klayout-tools pin 267ea83a0510, dac2b5daceb6 → 0.8.0
 - **PR #34**: feat(rtl): add ADPLL loop filter, divider, lock detector, DCO code path and top
 
 ### 2026-10-24
