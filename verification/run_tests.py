@@ -30,11 +30,8 @@ CONTROL = "negative_control"
 RTL = REPO / "rtl"
 
 # DUT registry: name -> (sources, toplevel, test module, smoke testcases).
-# Every module also carries a `negative_control`. The placeholder is the
-# harness self-check and stays first.
+# Every module also carries a `negative_control`.
 SUITES = {
-    "placeholder": ([HERE / "placeholder/counter.v"], "counter", "test_counter",
-                    "test_counter_counts,test_counter_wraps", HERE / "placeholder"),
     "loop_filter": ([RTL / "adpll_loop_filter.v"], "adpll_loop_filter", "test_loop_filter",
                     "test_step_response,test_integrator_saturation,test_hold_without_en", HERE),
     "divider": ([RTL / "adpll_divider.v"], "adpll_divider", "test_divider",
@@ -121,11 +118,11 @@ def simulate(args, build_dir, testcase, seed):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--sources", nargs="+", default=None)
-    ap.add_argument("--toplevel", default="counter")
-    ap.add_argument("--test-module", default="test_counter")
-    ap.add_argument("--test-dir", default=str(HERE / "placeholder"))
-    ap.add_argument("--tests", default="test_counter_counts,test_counter_wraps",
-                    help="comma-separated smoke testcases (with --sources)")
+    ap.add_argument("--toplevel", default=None, help="required with --sources")
+    ap.add_argument("--test-module", default=None, help="required with --sources")
+    ap.add_argument("--test-dir", default=None, help="required with --sources")
+    ap.add_argument("--tests", default=None,
+                    help="comma-separated smoke testcases (required with --sources)")
     ap.add_argument("--suite", choices=sorted(SUITES) + ["all"], default="all",
                     help="registered DUT to run (default: all; ignored with --sources)")
     ap.add_argument("--seed", type=int, default=None)
@@ -136,6 +133,9 @@ def main():
     args = ap.parse_args()
 
     if args.sources is not None:
+        for flag in ("toplevel", "test_module", "test_dir", "tests"):
+            if getattr(args, flag) is None:
+                ap.error(f"--sources requires --{flag.replace('_', '-')}")
         return run_one(args, "custom")
     rc = 0
     for name in (sorted(SUITES) if args.suite == "all" else [args.suite]):
