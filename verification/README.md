@@ -1,10 +1,10 @@
 # verification
 
 cocotb + Icarus testbench harness. `run_tests.py` runs the registered suites
-(`SUITES` in the script): the placeholder self-check (`placeholder/counter.v`)
-plus one suite per ADPLL block in `rtl/`. Each suite has its own
-`negative_control` and writes `sim/build/verification/<suite>.json`.
-`--suite NAME` runs one; `--sources` runs an ad-hoc DUT.
+(`SUITES` in the script), one suite per ADPLL block in `rtl/`. Each suite has
+its own `negative_control` and writes `sim/build/verification/<suite>.json`.
+`--suite NAME` runs one; `--sources` runs an ad-hoc DUT and also requires
+`--toplevel`, `--test-module`, `--test-dir` and `--tests`.
 
 ## Cold start
 
@@ -33,7 +33,6 @@ replay), commit, `dirty` flag, DUT, and the version of every tool used.
 | `check_records.py` | validates a record (versions present, control failed on an assertion) |
 | `requirements.txt` | pinned Python deps |
 | `test_<block>.py` | per-block cocotb tests (loop filter, divider, lock detect, DCO code, top) |
-| `placeholder/` | counter DUT, smoke tests and `negative_control` |
 | `gate-level/` | slot for re-running the same tests on a netlist |
 | `../scripts/lint-rtl.sh` | `verilator --lint-only -Wall` over `rtl/`; prints "vacuous pass" only if `rtl/` is empty |
 
