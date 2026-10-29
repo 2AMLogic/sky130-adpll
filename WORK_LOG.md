@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-10-28
+
+- **PR #40**: refactor(verification): drop the counter placeholder suite and require --sources args
+- **Issue #36** (closed): Remove verification/placeholder counter suite: its stated reason (empty rtl/) is gone
+
 ### 2026-10-27
 
 - **PR #38**: chore(deps): pin klayout-tools to the 0.8.0 PyPI release
