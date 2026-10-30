@@ -32,9 +32,8 @@
 # are all `os.path.abspath()`-resolved before being written into the script
 # or passed as an `openroad` CLI argument. An earlier revision of this
 # script bind-mounted the host directory at a container-internal
-# `/workspace` instead, which works for the relative-path-only smoke test
-# (`scripts/openroad-smoke-test.sh`) but silently fails any real
-# `klt place-and-route` run: every absolute host path a stage script
+# `/workspace` instead, which works for relative-path-only scripts but
+# silently fails any real `klt place-and-route` run: every absolute host path a stage script
 # references (e.g. `/Users/you/.volare/sky130A/...` for the liberty/LEF
 # deck, which lives *outside* the repo entirely) resolves to nothing inside
 # a container whose filesystem was never given that path. Mounting
@@ -127,10 +126,9 @@ if [ -n "${PDK_MOUNT_DIR}" ] && [ "${PDK_MOUNT_DIR}" != "${MOUNT_DIR}" ]; then
 fi
 
 # Forward a small allowlist of ORFS/OpenROAD-relevant env vars from the host
-# shell into the container, if set there -- e.g. PLATFORM_DIR (this repo's
-# own scripts/openroad-smoke-test.sh sets it to point at the image's bundled
-# sky130hd platform data). `docker run -e VAR` with VAR unset in the calling
-# shell is a harmless no-op, not an error.
+# shell into the container, if set there -- e.g. PLATFORM_DIR (callers set
+# it to point at the image's bundled sky130hd platform data). `docker run -e VAR`
+# with VAR unset in the calling shell is a harmless no-op, not an error.
 ENV_ARGS=(-e PLATFORM_DIR -e PDK_ROOT)
 
 exec docker run --rm --platform linux/amd64 \
