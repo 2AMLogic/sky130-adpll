@@ -38,6 +38,13 @@ circuits — so both flows apply.
   simulated number is never called measured.
 - Spec changes go through `spec/` with a decision record; agents do not relax
   the ratified spec to make results pass.
+- **Spec ratification** (2026-10-22 ruling, 2am#5864): research and drafting an
+  evidence-backed spec PR are ordinary agent work; do not wait for a human
+  before starting. The authors cannot ratify their own design. The EE-key and
+  market-key reviewers (`ratification/ee-key/`, `ratification/market-key/`)
+  review a spec PR first, as input, and then the operator ratifies. The
+  `ratification/` trees are generated and public-safe; regenerate them, never
+  hand-edit.
 - **200 MHz integer-N is the target.** 100 MHz is the fallback; 400 MHz and
   fractional-N are stretches. Do not let fractional-N drive the loop
   architecture before integer-N closes.
