@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-10-30
+
+- **PR #43**: chore: remove vendored OpenROAD smoke test
+- **Issue #42** (closed): Remove vendored OpenROAD smoke test: flow/smoke already proves the toolchain
+
 ### 2026-10-28
 
 - **PR #40**: refactor(verification): drop the counter placeholder suite and require --sources args
