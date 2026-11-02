@@ -7,9 +7,21 @@ The committed record is the verdict of record; it is graded, not hand-read.
 ## Files
 
 - `sky130-adpll.json`: block manifest (`block: sky130-adpll`, `kind: digital`).
-  It cites item 10 only; every other item stays uncited until its evidence lands.
+  It cites items 1 and 10; every other item stays uncited until its evidence lands.
 - `sky130-adpll.signoff.json`: tool-produced verdict of record (`--format json`).
-  All items except 10 are unmet. CI gates drift, not tier.
+  All items except 1 and 10 are unmet. CI gates drift, not tier.
+- `item1.inventory.json`: item 1 (design sources) attestation inventory. It lists
+  the RTL under `rtl/`, `design/dco.v` (structural, cells only), the
+  `flow/adpll/synthesize.json` request, and the synthesized netlist
+  `flow/adpll/records/adpll_top_synth.v` as the derived artifact.
+- `item1.attestation.json`: tool-produced envelope from `klt signoff --attest 1`.
+  The grade rests on file presence plus a freshness check of the derived netlist
+  (`klt synthesize --check`, cheap mode: re-hash the request sources and
+  liberty). That check is `local_only`: it needs the sky130 PDK, so CI skips it
+  and carries the committed outcome; re-run it locally when you regenerate. It
+  attests design sources and a pre-layout synthesized netlist only. It does not
+  claim DCO frequency, tuning, timing or any post-layout behaviour, and the phase
+  detector is not inventoried (its choice waits on decision 0002).
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
   only files that exist today. Add `verification/` CI here when #4 lands.
 - `item10.attestation.json`: tool-produced envelope from
@@ -34,10 +46,12 @@ The committed record is the verdict of record; it is graded, not hand-read.
 
 ```sh
 K="klayout-tools==0.8.0"
+PDK=sky130A PDK_ROOT=$HOME/.ciel uvx --from "$K" klt signoff --attest 1 \
+    --inventory manifests/item1.inventory.json -o manifests/item1.attestation.json
 uvx --from "$K" klt signoff --attest 10 --inventory manifests/item10.inventory.json \
     -o manifests/item10.attestation.json
 # if the inventory changed, copy provenance.input.content_hash of the envelope
-# into evidence.10.content_hash in sky130-adpll.json, then:
+# into evidence.<item>.content_hash in sky130-adpll.json, then:
 uvx --from "$K" klt signoff --manifest manifests/sky130-adpll.json \
     --tiers-doc manifests/design-evidence-tiers.md --format json \
     > manifests/sky130-adpll.signoff.json   # exit 3 = some item unmet; expected

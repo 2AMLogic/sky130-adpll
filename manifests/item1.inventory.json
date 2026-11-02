@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 1,
+  "description": "Design-source inventory for sky130-adpll: the synthesizable RTL, the structural DCO netlist and the synthesize request. The phase detector is not inventoried; its choice waits on decision 0002. Pre-layout sources only; no DCO frequency, tuning, timing or post-layout behaviour is attested.",
+  "sources": [
+    "rtl/adpll_divider.v",
+    "rtl/adpll_loop_filter.v",
+    "rtl/adpll_dco_code.v",
+    "rtl/adpll_lock_detect.v",
+    "rtl/adpll_top.v",
+    "design/dco.v",
+    "flow/adpll/synthesize.json"
+  ],
+  "derived": [
+    {
+      "path": "flow/adpll/records/adpll_top_synth.v",
+      "generator": "klt synthesize",
+      "check": {
+        "argv": [
+          "klt", "synthesize", "synthesize.json",
+          "--check", "records/synthesize-output.json"
+        ],
+        "cwd": "flow/adpll",
+        "local_only": true
+      }
+    }
+  ]
+}

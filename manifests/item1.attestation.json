@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "t1_item": 1,
+  "summary": "T1 item 1 (Design sources): 9/9 attestation checks passed (klt signoff --attest)",
+  "source": "manifests/item1.inventory.json",
+  "attestation": {
+    "producer": "klt signoff --attest",
+    "inventory_schema_version": 1,
+    "hash_algorithm": "sha256-raw-bytes",
+    "check_count": 9,
+    "passed_count": 9,
+    "checks": [
+      {
+        "check": "present",
+        "role": "source",
+        "path": "design/dco.v",
+        "passed": true,
+        "content_hash": "sha256:c941e21adcc4f2af696918e50174152b67ffdba0b6fab53984d3cf53539b117c"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "flow/adpll/synthesize.json",
+        "passed": true,
+        "content_hash": "sha256:54c3f8f0ca6a3c9be598b9325c92592aec4c60897542a7f810eb0dd26793258d"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "rtl/adpll_dco_code.v",
+        "passed": true,
+        "content_hash": "sha256:9582612732dacfaf7f6d0ee844912d61ff5d7efe136cd6f5f559f745ba6dbbcb"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "rtl/adpll_divider.v",
+        "passed": true,
+        "content_hash": "sha256:ca9f2b1b201b4c9754371aee482e18e5fff8ddac16323cab4cb84ec6b04e3ff1"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "rtl/adpll_lock_detect.v",
+        "passed": true,
+        "content_hash": "sha256:d92f650511b624031e316fe4c27ab1127aca11f233502b8666e086d5bdc9a77c"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "rtl/adpll_loop_filter.v",
+        "passed": true,
+        "content_hash": "sha256:710fb3ec24677d44f99deb7e81870110cffa312dd41f5fef8c48fda88df744e6"
+      },
+      {
+        "check": "present",
+        "role": "source",
+        "path": "rtl/adpll_top.v",
+        "passed": true,
+        "content_hash": "sha256:aeef5b64a621e543e70faf1e36efbd8f48cc503a5b11bd6c3bf359847ed8488f"
+      },
+      {
+        "check": "present",
+        "role": "derived",
+        "path": "flow/adpll/records/adpll_top_synth.v",
+        "passed": true,
+        "content_hash": "sha256:9a9a836f646883beac3e6477e76b98dbf567b960a51cd74cf2ee8f7b60418dea"
+      },
+      {
+        "check": "command",
+        "role": "freshness",
+        "target": "flow/adpll/records/adpll_top_synth.v",
+        "generator": "klt synthesize",
+        "argv": [
+          "klt",
+          "synthesize",
+          "synthesize.json",
+          "--check",
+          "records/synthesize-output.json"
+        ],
+        "cwd": "flow/adpll",
+        "exit_status": 0,
+        "passed": true,
+        "local_only": true
+      }
+    ]
+  },
+  "provenance": {
+    "klt_version": "0.8.0",
+    "klayout_version": null,
+    "pdk": null,
+    "deck": null,
+    "input": {
+      "path": {
+        "path": "manifests/item1.inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:94d12365664050f50e0e62dd15c3e4a541e14035de4439197f2abfd6b07c1fce"
+    }
+  }
+}
