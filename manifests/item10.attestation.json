@@ -38,7 +38,7 @@
         "role": "hygiene",
         "path": "manifests/check-signoff.sh",
         "passed": true,
-        "content_hash": "sha256:fd66e962cb8aea224102da34753cd3e095e5976122fa87d1f5a74a83b560cefb"
+        "content_hash": "sha256:d9683cc701c05395d28e666506f9134753c1b8a85fd1f3b38235e6cc5a3dc9f1"
       },
       {
         "check": "command",
