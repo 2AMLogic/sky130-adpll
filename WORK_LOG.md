@@ -2,6 +2,15 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-02
+
+- **PR #53**: feat(manifests): attest T1 item 9 testbench inventory for the RTL benches
+- **PR #50**: feat(manifests): attest T1 item 1 design sources and cite it in the block manifest
+- **PR #49**: feat(flow): add klt synthesize request and gate-level netlist for ADPLL RTL
+- **PR #48**: feat(design): add DCO structural ring netlist (library cells only)
+- **Issue #32** (closed): T1 item 9 (testbenches shipped): replace the placeholder DUT with the ADPLL benches and attest item 9
+- **Issue #28** (closed): T1 item 1 (design sources): ADPLL RTL (PI loop filter, divider, lock detect, DCO code path) plus synthesized sky130_fd_sc_hd netlist with item-1 attestation
+
 ### 2026-11-01
 
 - **PR #45**: Bump Repo Skills 0.24.7 -> 0.25.1
