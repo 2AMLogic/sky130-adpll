@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "kind": "t1-attestation-inventory",
+  "t1_item": 9,
+  "description": "Testbench inventory for sky130-adpll: the five RTL cocotb suites (loop filter, divider, lock detect, DCO code, top) and the sim/pdk-smoke inverter bench (toolchain proof, not a design result). The cold start re-runs the cocotb suites and checks their run records. DCO (spec rows 2, 3) and TDC (rows 6a, 6b) benches are not inventoried: they are added by #51 and #52 and this attestation is regenerated then. Pre-layout, simulated; nothing here is a measurement.",
+  "testbenches": [
+    "verification/test_loop_filter.py",
+    "verification/test_divider.py",
+    "verification/test_lock_detect.py",
+    "verification/test_dco_code.py",
+    "verification/test_top.py",
+    "verification/run_tests.py",
+    "verification/check_records.py",
+    "sim/pdk-smoke/inv_tb.spice",
+    "sim/pdk-smoke/request.json"
+  ],
+  "cold_start": {
+    "argv": [
+      "sh", "-c",
+      "uv venv --allow-existing .venv && uv pip install --python .venv/bin/python -r verification/requirements.txt && .venv/bin/python verification/run_tests.py && .venv/bin/python verification/check_records.py"
+    ],
+    "local_only": true,
+    "timeout_s": 900
+  },
+  "pins": {
+    "pdk": {
+      "name": "sky130A",
+      "revision": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+    },
+    "tools": {
+      "cocotb": "1.9.2",
+      "iverilog": "13.0",
+      "verilator": "5.050",
+      "ngspice": "42",
+      "klt": "0.8.0"
+    }
+  }
+}

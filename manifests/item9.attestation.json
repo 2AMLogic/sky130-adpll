@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "generic",
+  "status": "pass",
+  "t1_item": 9,
+  "summary": "T1 item 9 (Testbenches shipped): 12/12 attestation checks passed (klt signoff --attest)",
+  "source": "manifests/item9.inventory.json",
+  "attestation": {
+    "producer": "klt signoff --attest",
+    "inventory_schema_version": 1,
+    "hash_algorithm": "sha256-raw-bytes",
+    "check_count": 12,
+    "passed_count": 12,
+    "checks": [
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "sim/pdk-smoke/inv_tb.spice",
+        "passed": true,
+        "content_hash": "sha256:32cb3e60d6e8064c981036ca1cc719bd8d525adb67c7fb25eece142842be891f"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "sim/pdk-smoke/request.json",
+        "passed": true,
+        "content_hash": "sha256:ef5f64ce1c5cf623223b43d8171042d7984f92adab5d9f8d45367140b5dbbc3b"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/check_records.py",
+        "passed": true,
+        "content_hash": "sha256:2f1506a2fa17dc704126f9006a3940a7236dc8132fcf314ec907d80b18afe661"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/run_tests.py",
+        "passed": true,
+        "content_hash": "sha256:275b43a5bac906289359abc36fab6a14ec695eb5bebbd1f30183a23e487782c4"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/test_dco_code.py",
+        "passed": true,
+        "content_hash": "sha256:32efbadaf203010c948ffd235c596225589ba7edf6fd985f2da71de8fc75e60e"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/test_divider.py",
+        "passed": true,
+        "content_hash": "sha256:5df46d2aa1bc7c03beb6034c63e4a22e22de573f25a73e52af3994e7af6ebac3"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/test_lock_detect.py",
+        "passed": true,
+        "content_hash": "sha256:95b0432199e2228cd3efb3be1eeaa74087a802396204463ebd2593559da82e3f"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/test_loop_filter.py",
+        "passed": true,
+        "content_hash": "sha256:b253b0b8b50841ce03f4305d09b8f71079b5a68a1f4c5fb5a7bffcc4f4114998"
+      },
+      {
+        "check": "present",
+        "role": "testbench",
+        "path": "verification/test_top.py",
+        "passed": true,
+        "content_hash": "sha256:d9930ae60f0a430d185f03a9393309a4bc6f4b9f3b6919cd3a25f6cc6d635be0"
+      },
+      {
+        "check": "command",
+        "role": "cold_start",
+        "argv": [
+          "sh",
+          "-c",
+          "uv venv --allow-existing .venv && uv pip install --python .venv/bin/python -r verification/requirements.txt && .venv/bin/python verification/run_tests.py && .venv/bin/python verification/check_records.py"
+        ],
+        "cwd": ".",
+        "exit_status": 0,
+        "passed": true,
+        "local_only": true
+      },
+      {
+        "check": "pin",
+        "role": "pdk",
+        "passed": true,
+        "value": {
+          "name": "sky130A",
+          "revision": "f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
+        }
+      },
+      {
+        "check": "pin",
+        "role": "tools",
+        "passed": true,
+        "value": {
+          "cocotb": "1.9.2",
+          "iverilog": "13.0",
+          "klt": "0.8.0",
+          "ngspice": "42",
+          "verilator": "5.050"
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "klt_version": "0.8.0",
+    "klayout_version": null,
+    "pdk": null,
+    "deck": null,
+    "input": {
+      "path": {
+        "path": "manifests/item9.inventory.json",
+        "scope": "repo"
+      },
+      "content_hash": "sha256:cbad4a9c25632c3a54ba99604ba6fc8343623da564dc2b2c93fbd108aefde185"
+    }
+  }
+}

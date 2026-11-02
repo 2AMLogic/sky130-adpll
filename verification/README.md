@@ -44,9 +44,21 @@ runner reports a failure: a harness that cannot fail proves nothing.
 
 ## Tool versions
 
-Python deps are pinned in `requirements.txt`. Simulator and lint tools come
-from the host until the pinned environment (#3) lands; their versions are
-read from each tool's own `--version` output into every record.
+Python deps are pinned in `requirements.txt`. `scripts/setup-env.sh` pins
+`klt`, Yosys and the sky130A PDK (open_pdks `f6eeac7d…`); `iverilog` and
+`verilator` still come from the host, and their versions are read from each
+tool's own `--version` output into every record. The T1 item 9 inventory
+(`../manifests/item9.inventory.json`) pins the PDK revision and the tool
+versions the committed attestation was produced with.
+
+## T1 item 9
+
+`../manifests/item9.inventory.json` lists the five `test_*.py` suites, the
+runner and checker, and `../sim/pdk-smoke/`; its `cold_start` is the command
+block above. The cold start is `local_only` (CI has no iverilog), so CI
+carries the committed outcome and `klt signoff --attest 9 --check` detects
+drift in the inventory or any listed file. DCO and TDC benches are not
+inventoried yet (#51, #52); regenerate the attestation when they land.
 
 ## Reference
 
