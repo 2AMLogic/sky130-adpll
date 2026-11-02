@@ -10,6 +10,8 @@ klt --version
 
 klt signoff --attest 1 --inventory manifests/item1.inventory.json \
     --check manifests/item1.attestation.json
+klt signoff --attest 9 --inventory manifests/item9.inventory.json \
+    --check manifests/item9.attestation.json
 klt signoff --attest 10 --inventory manifests/item10.inventory.json \
     --check manifests/item10.attestation.json
 klt signoff --manifest manifests/sky130-adpll.json \

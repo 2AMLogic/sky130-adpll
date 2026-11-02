@@ -7,9 +7,9 @@ The committed record is the verdict of record; it is graded, not hand-read.
 ## Files
 
 - `sky130-adpll.json`: block manifest (`block: sky130-adpll`, `kind: digital`).
-  It cites items 1 and 10; every other item stays uncited until its evidence lands.
+  It cites items 1, 9 and 10; every other item stays uncited until its evidence lands.
 - `sky130-adpll.signoff.json`: tool-produced verdict of record (`--format json`).
-  All items except 1 and 10 are unmet. CI gates drift, not tier.
+  All items except 1, 9 and 10 are unmet. CI gates drift, not tier.
 - `item1.inventory.json`: item 1 (design sources) attestation inventory. It lists
   the RTL under `rtl/`, `design/dco.v` (structural, cells only), the
   `flow/adpll/synthesize.json` request, and the synthesized netlist
@@ -22,6 +22,15 @@ The committed record is the verdict of record; it is graded, not hand-read.
   attests design sources and a pre-layout synthesized netlist only. It does not
   claim DCO frequency, tuning, timing or any post-layout behaviour, and the phase
   detector is not inventoried (its choice waits on decision 0002).
+- `item9.inventory.json`: item 9 (testbenches shipped) attestation inventory. It
+  lists the five RTL cocotb suites, the runner/checker and `sim/pdk-smoke/`, the
+  cold-start command, and the PDK revision and tool versions. DCO and TDC benches
+  are not in it (#51, #52); regenerate when they land.
+- `item9.attestation.json`: tool-produced envelope from `klt signoff --attest 9`.
+  The cold start is `local_only` (needs iverilog/verilator), so CI skips it and
+  carries the committed outcome; re-run it locally when you regenerate. It
+  attests that the listed benches exist and run, with pins recorded. Results are
+  simulated, none measured.
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
   only files that exist today. Add `verification/` CI here when #4 lands.
 - `item10.attestation.json`: tool-produced envelope from
@@ -48,6 +57,8 @@ The committed record is the verdict of record; it is graded, not hand-read.
 K="klayout-tools==0.8.0"
 PDK=sky130A PDK_ROOT=$HOME/.ciel uvx --from "$K" klt signoff --attest 1 \
     --inventory manifests/item1.inventory.json -o manifests/item1.attestation.json
+uvx --from "$K" klt signoff --attest 9 --inventory manifests/item9.inventory.json \
+    -o manifests/item9.attestation.json
 uvx --from "$K" klt signoff --attest 10 --inventory manifests/item10.inventory.json \
     -o manifests/item10.attestation.json
 # if the inventory changed, copy provenance.input.content_hash of the envelope
