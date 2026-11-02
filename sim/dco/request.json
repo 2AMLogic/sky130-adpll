@@ -1,0 +1,19 @@
+{
+  "engine": "ngspice",
+  "models": {"pdk": "sky130A", "lib": "libs.tech/combined/sky130.lib.spice"},
+  "netlist": "dco_tb.spice",
+  "analysis": {"kind": "tran", "args": "20p 60n"},
+  "corners": {
+    "process": ["tt", "ss", "ff", "sf", "fs"],
+    "temperature_c": [-40.0, 25.0, 125.0],
+    "supply_v": {"vdd": [1.62, 1.8, 1.98]},
+    "params": {
+      "cc": [0, 63, 32, 32, 32],
+      "fc": [0, 63, 0, 63, 32]
+    }
+  },
+  "measurements": [
+    {"name": "t10_s", "spice": ".meas tran t10_s TRIG v(clk) VAL=0.9 RISE=6 TARG v(clk) VAL=0.9 RISE=16"}
+  ],
+  "options": {"keep_artifacts": true, "timeout_s": 150}
+}

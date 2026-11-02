@@ -20,8 +20,27 @@ Library: `sky130_fd_sc_hd` (high-density, 1.8 V core). Supply 1.80 V ±10 %
 | **C27+skew** | C27 plus SF and FS process at the same VDD/T grid | DCO and TDC cell-level SPICE (ring duty cycle and delay-line linearity depend on N/P skew) |
 | **C5** | TT/1.80/25, SS/1.62/125, SS/1.62/−40, FF/1.98/−40, FF/1.98/125 | iteration smoke only; never a recorded result |
 
-Mapping of these names to the liberty/SPICE corner files the installed PDK
-actually ships is open item O1.
+Mapping of these names to the installed PDK files (open item O1, closed;
+checked against open_pdks `f6eeac7dad08`, sky130A, as installed under
+`$PDK_ROOT`):
+
+- **SPICE (cell-level benches).** `libs.tech/combined/sky130.lib.spice` has
+  one `.lib` section per process corner: `tt`, `ss`, `ff`, `sf`, `fs` (plus
+  RC variants `ll/hh/hl/lh` and combined forms, unused here). C27 uses
+  `tt`/`ss`/`ff`; C27+skew adds `sf` (slow N / fast P) and `fs` (fast N /
+  slow P). Cell netlists come from
+  `libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice`. VDD (1.62/1.80/1.98 V)
+  and temperature (−40/25/125 °C) are simulator inputs, so SPICE covers the
+  whole grid; the spec's 25 °C is used, not the smoke bench's 27 °C.
+- **Liberty (STA).** `libs.ref/sky130_fd_sc_hd/lib/` ships 18 files, only
+  `tt`, `ff`, `ss` at −40, 25 (tt only) and 100 °C: `tt_025C_1v80`, `tt_100C_1v80`;
+  `ff_n40C_{1v56,1v65,1v76,1v95}` (+ `_ccsnoise`), `ff_100C_{1v65,1v95}`;
+  `ss_n40C_{1v28,1v35,1v40,1v44,1v60,1v76}` (+ `_ccsnoise`),
+  `ss_100C_{1v40,1v60}`. There is no liberty for `sf`/`fs`, none for `tt` at
+  1.62/1.98 V or −40 °C, and none at 25 °C for ff/ss, so STA cannot span C27;
+  liberty corners are never a substitute for the SPICE grid.
+
+This records installed files only; no grading number changes.
 
 ## Parameter table
 
@@ -92,7 +111,7 @@ Each names the measurement that settles it. None is settled by guessing a number
 
 | ID | Question | Settled by |
 |---|---|---|
-| O1 | Which PDK corner files implement C27 / C27+skew for `sky130_fd_sc_hd` | List the installed liberty and SPICE corner files; record the mapping in this table |
+| O1 | Which PDK corner files implement C27 / C27+skew for `sky130_fd_sc_hd` | **Closed.** Mapping recorded in "Corner sets" above (SPICE `.lib` sections tt/ss/ff/sf/fs; liberty is a sparse subset, no sf/fs) |
 | O2 | Is a ≈170-tap delay line affordable in the 2 mW budget and area | Characterize one tap and a 16-tap segment extracted; extrapolate; revisit row 6b range or add a coarse counter |
 | O3 | DCO tuning range and fine LSB actually achieved by the chosen structure at each corner | SPICE sweep of the DCO code over C27+skew, pre- then post-layout |
 | O4 | PI gains and word widths | Behavioural loop model (see `placement-constraints.md` for the layout side); gains must meet rows 7, 9, 10 over the DCO gain spread from O3 |
