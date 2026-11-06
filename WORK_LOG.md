@@ -2,6 +2,10 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-06
+
+- **Issue #46** (closed): Remove vendored design-evidence-tiers.md: the pinned klt already ships it
+
 ### 2026-11-02
 
 - **PR #53**: feat(manifests): attest T1 item 9 testbench inventory for the RTL benches
