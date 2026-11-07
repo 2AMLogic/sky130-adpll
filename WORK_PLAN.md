@@ -57,7 +57,7 @@ Issues carrying `loom:curated`.
 
 ## Proposed (Architect / Hermit)
 
-- **#46**: Remove vendored design-evidence-tiers.md: the pinned klt already ships it *(hermit)*
+_None._
 
 ## Epics
 
