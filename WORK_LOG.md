@@ -2,6 +2,10 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-07
+
+- **PR #58**: Bump Repo Skills 0.25.1 -> 0.25.10
+
 ### 2026-11-06
 
 - **Issue #46** (closed): Remove vendored design-evidence-tiers.md: the pinned klt already ships it
