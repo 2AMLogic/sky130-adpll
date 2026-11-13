@@ -20,6 +20,7 @@ _None._
 `loom:important`; taken before unlabelled work.
 
 - **#2**: Draft and ratify the target spec
+- **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
 - **#19**: Open the spec ratification PR for the numeric and architecture targets, and get both key reviews
 
 ## Ready
@@ -69,7 +70,7 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 0 |
-| Important | 2 |
+| Important | 3 |
 | Ready (`loom:issue`) | 0 |
 | In Progress (`loom:building`) | 1 |
 | PRs awaiting review | 1 |
