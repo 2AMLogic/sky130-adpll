@@ -38,5 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verification-result
-          path: sim/build/verification/result.json
-          if-no-files-found: warn
+          # One record per suite in SUITES, as run_tests.py writes them; the
+          # same top-level *.json glob check_records.py validates.
+          path: sim/build/verification/*.json
+          # A run that captured no record is not an empty artifact, it is a
+          # missing one: fail instead of warning.
+          if-no-files-found: error
