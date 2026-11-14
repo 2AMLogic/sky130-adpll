@@ -32,7 +32,9 @@ The committed record is the verdict of record; it is graded, not hand-read.
   attests that the listed benches exist and run, with pins recorded. Results are
   simulated, none measured.
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
-  only files that exist today. Add `verification/` CI here when #4 lands.
+  the README, the licence, both CI workflows (`ci.yml`, `signoff.yml`) and
+  `check-signoff.sh`. The verification suite's own files are item 9's inventory,
+  not this one.
 - `item10.attestation.json`: tool-produced envelope from
   `klt signoff --attest 10`. The grade rests on file presence plus one command
   check (no placeholder scripts in `package.json`); it does not show that every
