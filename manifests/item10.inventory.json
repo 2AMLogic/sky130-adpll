@@ -2,10 +2,11 @@
   "schema_version": 1,
   "kind": "t1-attestation-inventory",
   "t1_item": 10,
-  "description": "Repo hygiene inventory for sky130-adpll. Lists only files that exist today; verification/ CI is added when #4 lands.",
+  "description": "Repo hygiene inventory for sky130-adpll: the README, licence, both CI workflows and the signoff checker. The verification suite itself is item 9's inventory, not this one.",
   "hygiene": [
     "README.md",
     "LICENSE",
+    ".github/workflows/ci.yml",
     ".github/workflows/signoff.yml",
     "manifests/check-signoff.sh"
   ],
