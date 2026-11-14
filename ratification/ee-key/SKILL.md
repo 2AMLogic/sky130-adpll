@@ -11,11 +11,20 @@ claim, on this block's own PDK, topology, and measured behavior?**
 ## Non-author enforcement (stated here, enforced elsewhere)
 
 **This skill must not be invoked by an agent that authored the PR under
-review or the spec/design the PR ratifies.** The actual identity check is
-the invoking review automation's job
-— until it lands, self-check: if the PR's author, or the
-design's original proposer, is the same identity running this review, stop
-and say so instead of producing a verdict. An EE-key verdict from an
+review or the spec/design the PR ratifies.** Independence is a separate
+session, not a separate forge identity: this key runs in a fresh session that
+did not author the PR, spec or design under review, and reads only this skill
+and the evidence this skill allows. "Non-author" therefore means *not the
+authoring session* — never a different GitHub account, since every agent that
+applies a key can post under one shared login, and that login cannot tell two
+sessions apart. Self-check first: if this
+session authored the PR or the spec/design, stop and say so instead of
+producing a verdict. The enforcing check is not this file's — it runs on the
+only path that applies a key, before that path can write anything to the
+forge, and refuses a key whose session is in the PR's resolved author set or
+that names the same session as the other key. Post the
+verdict as an ordinary PR comment whose marker names this session's own run id
+in `reviewer=` (see "Output format" below). An EE-key verdict from an
 interested party is not incentive-separated and is worse than no verdict at
 all.
 
@@ -181,13 +190,13 @@ duplicate it inline.
 
 ## Output format
 
-Post a single PR review comment (or, for a dry run against a closed/still-
-open historical case with no live PR review to post into, a document written
-the same way minus the PR-review wrapper)
-with this structure:
+The verdict is a single ordinary PR comment (or, for a
+dry run against a closed/still-open historical case with no live PR to post
+into, a document written the same
+way). Write only the human text, starting at the
+`## EE-key review:` heading, with this structure:
 
 ```markdown
-<!-- RATIFY-KEY: ee verdict=<approve|request-changes> block=<repo>#<PR-or-issue> reviewer=<agent-id> date=<ISO-8601> -->
 ## EE-key review: <block name / class>
 
 **Overall verdict:** <approve|request-changes>, one sentence why.
@@ -213,6 +222,12 @@ Block class: <...>. Kind: <analog|digital|mixed-signal>. Change type
 ...
 ```
 
-The marker comment's `verdict=` field is machine-read by the release wiring — keep it exactly one of the two
-listed tokens, never free text.
+**Never write the marker line yourself.** The mechanism that
+applies a key renders the marker and prepends it to the body it is given,
+filling in the head commit it reviewed and the session that reviewed it; a body
+that already carries a marker is refused and nothing is
+posted.
+
+The marker's `verdict=` field is machine-read by the release wiring — keep it
+exactly one of the two listed tokens, never free text.
 

@@ -1,6 +1,6 @@
 # MANIFEST — generated canary variant
 
-Generated 2026-10-24 by an internal, private-repo-only generation tool. Do not hand-edit; regenerate instead.
+Generated 2026-11-14 by an internal, private-repo-only generation tool. Do not hand-edit; regenerate instead.
 
 ## Skill files
 
