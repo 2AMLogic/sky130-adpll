@@ -2,6 +2,14 @@
   "block": "sky130-adpll",
   "kind": "digital",
   "evidence": {
+    "1": {
+      "file": "manifests/item1.attestation.json",
+      "content_hash": "sha256:94d12365664050f50e0e62dd15c3e4a541e14035de4439197f2abfd6b07c1fce"
+    },
+    "9": {
+      "file": "manifests/item9.attestation.json",
+      "content_hash": "sha256:cbad4a9c25632c3a54ba99604ba6fc8343623da564dc2b2c93fbd108aefde185"
+    },
     "10": {
       "file": "manifests/item10.attestation.json",
       "content_hash": "sha256:e19bd1644a18dea30a4ddcb7d96cc80ed4c343d853daee73719316808067dd1d"

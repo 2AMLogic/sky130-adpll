@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Validate a result record written by run_tests.py (stdlib only).
 
-Usage: python3 verification/check_records.py [record.json]
+Usage: python3 verification/check_records.py [record.json ...]
+With no argument, checks every <suite>.json under sim/build/verification/
+(and fails if there are none).
 Checks schema, that tool versions and the commit are present, that the
 smoke tests passed, and that every expected-fail test (the negative
 control) actually failed. Exit 0 pass, 1 invalid.
@@ -12,7 +14,7 @@ import re
 import sys
 from pathlib import Path
 
-DEFAULT = Path(__file__).resolve().parent.parent / "sim/build/verification/result.json"
+DEFAULT_DIR = Path(__file__).resolve().parent.parent / "sim/build/verification"
 TOOLS = ("iverilog", "verilator", "yosys", "cocotb", "python")
 
 
@@ -51,8 +53,7 @@ def check(rec):
     return errs
 
 
-def main():
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT
+def check_file(path):
     try:
         rec = json.loads(path.read_text())
     except (OSError, ValueError) as e:
@@ -63,6 +64,14 @@ def main():
         print(f"check_records: {e}", file=sys.stderr)
     print(f"check_records: {path}: {'FAIL' if errs else 'ok'}")
     return 1 if errs else 0
+
+
+def main():
+    paths = [Path(a) for a in sys.argv[1:]] or sorted(DEFAULT_DIR.glob("*.json"))
+    if not paths:
+        print(f"check_records: no records under {DEFAULT_DIR}", file=sys.stderr)
+        return 1
+    return max(check_file(p) for p in paths)
 
 
 if __name__ == "__main__":

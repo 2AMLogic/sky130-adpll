@@ -29,11 +29,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Pinned to a klayout-tools commit: the latest PyPI release (0.7.0) has
-      # no `klt signoff --attest`, which item 10 needs. Keep in step with
-      # manifests/README.md.
+      # Pinned to the klayout-tools 0.8.0 release on PyPI. Keep in step with
+      # manifests/README.md and scripts/setup-env.sh.
       - name: Install pinned klt
-        run: pip install "klayout-tools @ git+https://github.com/2AMLogic/klayout-tools@267ea83a0510bcb61d2956058095201c0f481ff7"
+        run: |
+          pip install "klayout-tools==0.8.0"
+          test "$(klt --version)" = "klt 0.8.0"
 
       - name: Check committed signoff records reproduce
         run: sh manifests/check-signoff.sh

@@ -2,8 +2,53 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-12
+
+- **PR #61**: Bump Repo Skills 0.25.10 -> 0.26.1
+
+### 2026-11-07
+
+- **PR #58**: Bump Repo Skills 0.25.1 -> 0.25.10
+
+### 2026-11-06
+
+- **Issue #46** (closed): Remove vendored design-evidence-tiers.md: the pinned klt already ships it
+
+### 2026-11-02
+
+- **PR #53**: feat(manifests): attest T1 item 9 testbench inventory for the RTL benches
+- **PR #50**: feat(manifests): attest T1 item 1 design sources and cite it in the block manifest
+- **PR #49**: feat(flow): add klt synthesize request and gate-level netlist for ADPLL RTL
+- **PR #48**: feat(design): add DCO structural ring netlist (library cells only)
+- **Issue #32** (closed): T1 item 9 (testbenches shipped): replace the placeholder DUT with the ADPLL benches and attest item 9
+- **Issue #28** (closed): T1 item 1 (design sources): ADPLL RTL (PI loop filter, divider, lock detect, DCO code path) plus synthesized sky130_fd_sc_hd netlist with item-1 attestation
+
+### 2026-11-01
+
+- **PR #45**: Bump Repo Skills 0.24.7 -> 0.25.1
+
+### 2026-10-30
+
+- **PR #43**: chore: remove vendored OpenROAD smoke test
+- **Issue #42** (closed): Remove vendored OpenROAD smoke test: flow/smoke already proves the toolchain
+
+### 2026-10-28
+
+- **PR #40**: refactor(verification): drop the counter placeholder suite and require --sources args
+- **Issue #36** (closed): Remove verification/placeholder counter suite: its stated reason (empty rtl/) is gone
+
+### 2026-10-27
+
+- **PR #38**: chore(deps): pin klayout-tools to the 0.8.0 PyPI release
+- **Issue #37** (closed): Bump klayout-tools pin 267ea83a0510, dac2b5daceb6 → 0.8.0
+- **PR #34**: feat(rtl): add ADPLL loop filter, divider, lock detector, DCO code path and top
+
 ### 2026-10-24
 
+- **PR #26**: docs(spec): verify S1 citation and renumber sources in record 0002
+- **Issue #23** (closed): Resolve unverified source S1 in decision record 0002
+- **PR #22**: docs(spec): add proposed phase-detector comparison record 0002
+- **Issue #20** (closed): Prepare the multi-bit TDC vs bang-bang phase-detector comparison (authorized on #2, 2026-10-19)
 - **PR #7**: ci: add klt signoff manifest, committed T1 record and drift check
 - **Issue #5** (closed): Signoff scaffolding: block manifest, committed klt signoff record, and CI (T1 item 10)
 
