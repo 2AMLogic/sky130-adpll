@@ -33,7 +33,7 @@ replay), commit, `dirty` flag, DUT, and the version of every tool used.
 | `check_records.py` | validates a record (versions present, control failed on an assertion) |
 | `requirements.txt` | pinned Python deps |
 | `test_<block>.py` | per-block cocotb tests (loop filter, divider, lock detect, DCO code, top) |
-| `gate-level/` | slot for re-running the same tests on a netlist |
+| `gate-level/` | re-runs `test_top` on the synthesized netlist (`run-gate-level.sh`, sim defines, committed record); pre-layout zero-delay functional, no SDF |
 | `../scripts/lint-rtl.sh` | `verilator --lint-only -Wall` over `rtl/`; prints "vacuous pass" only if `rtl/` is empty |
 
 ## Negative control
