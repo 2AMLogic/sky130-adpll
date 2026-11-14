@@ -21,10 +21,8 @@ open_pdks `f6eeac7dad08`).
 - **No phase detector.** Its choice waits on decision 0002 (PENDING); the
   top-level exposes `pd_err`/`pd_valid` as ports. `design/dco.v` (the DCO ring)
   is not part of this request: it is already a structural netlist.
-- **Netlist audit.** All 579 leaf instances are `sky130_fd_sc_hd__*` cells,
-  matching `instance_count` in the response. The four remaining instances are
-  the synthesized sub-modules defined in the same file (hierarchy is kept).
+- **Netlist audit.** All 515 leaf instances are `sky130_fd_sc_hd__*` cells
+  (`engine_version` `0.67+post`), matching `instance_count` in the response.
+  The four remaining instances are the synthesized sub-modules defined in the
+  same file (hierarchy is kept).
 - **Spec numbers are provisional** (Proposed spec), as in the RTL.
-- **Observation, not fixed here:** 64 `conb_1` tie cells drive the dangling
-  `imin_x`/`imax_x` wires of `adpll_loop_filter` (named constants that no logic
-  reads). They cost area and should be removed in an RTL follow-up.

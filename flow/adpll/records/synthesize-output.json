@@ -4,10 +4,10 @@
   "engine_version": "0.67+post",
   "hdl_toplevel": "adpll_top",
   "parameters": {},
-  "run_id": "run-49f1c1f10df24d65a88a281dbd975b1a",
+  "run_id": "run-5cf76030441a47caa396b28dca7c4648",
   "status": "ok",
-  "instance_count": 579,
-  "area_um2": 4055.1392,
+  "instance_count": 515,
+  "area_um2": 3814.9088,
   "sequential_area_um2": 1081.0368,
   "instance_counts_by_type": {
     "sky130_fd_sc_hd__a2111o_1": 1,
@@ -33,7 +33,6 @@
     "sky130_fd_sc_hd__buf_2": 2,
     "sky130_fd_sc_hd__buf_4": 2,
     "sky130_fd_sc_hd__clkbuf_1": 16,
-    "sky130_fd_sc_hd__conb_1": 64,
     "sky130_fd_sc_hd__dfxtp_1": 54,
     "sky130_fd_sc_hd__inv_1": 17,
     "sky130_fd_sc_hd__maj3_1": 1,
@@ -79,7 +78,7 @@
     "sky130_fd_sc_hd__xnor2_1": 31,
     "sky130_fd_sc_hd__xor2_1": 23
   },
-  "leakage_power_nw": 1.6130656970000001,
+  "leakage_power_nw": 1.405703329,
   "leakage_by_type_nw": {
     "sky130_fd_sc_hd__a2111o_1": 0.001675069,
     "sky130_fd_sc_hd__a211o_1": 0.003137275,
@@ -104,7 +103,6 @@
     "sky130_fd_sc_hd__buf_2": 0.003934116,
     "sky130_fd_sc_hd__buf_4": 0.00480474,
     "sky130_fd_sc_hd__clkbuf_1": 0.001181018,
-    "sky130_fd_sc_hd__conb_1": 0.003240037,
     "sky130_fd_sc_hd__dfxtp_1": 0.008438635,
     "sky130_fd_sc_hd__inv_1": 0.005326682,
     "sky130_fd_sc_hd__maj3_1": 0.002090256,
@@ -196,27 +194,27 @@
     "reason": null,
     "modules": [],
     "script_path": {
-      "path": "flow/adpll/.klt/synthesize/run-49f1c1f10df24d65a88a281dbd975b1a/adpll_top_memory_evidence.ys",
+      "path": "flow/adpll/.klt/synthesize/run-5cf76030441a47caa396b28dca7c4648/adpll_top_memory_evidence.ys",
       "scope": "repo"
     }
   },
   "blackbox_modules": [],
   "netlist_path": {
-    "path": "flow/adpll/.klt/synthesize/run-49f1c1f10df24d65a88a281dbd975b1a/adpll_top_synth.v",
+    "path": "flow/adpll/.klt/synthesize/run-5cf76030441a47caa396b28dca7c4648/adpll_top_synth.v",
     "scope": "repo"
   },
-  "netlist_sha256": "9a9a836f646883beac3e6477e76b98dbf567b960a51cd74cf2ee8f7b60418dea",
+  "netlist_sha256": "7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd",
   "script_path": {
-    "path": "flow/adpll/.klt/synthesize/run-49f1c1f10df24d65a88a281dbd975b1a/synth_adpll_top.ys",
+    "path": "flow/adpll/.klt/synthesize/run-5cf76030441a47caa396b28dca7c4648/synth_adpll_top.ys",
     "scope": "repo"
   },
   "run_script_path": {
-    "path": "flow/adpll/.klt/synthesize/run-49f1c1f10df24d65a88a281dbd975b1a/synth_adpll_top.run.ys",
+    "path": "flow/adpll/.klt/synthesize/run-5cf76030441a47caa396b28dca7c4648/synth_adpll_top.run.ys",
     "scope": "repo"
   },
   "provenance": {
     "klt_version": "0.8.0",
-    "klayout_version": "0.30.12",
+    "klayout_version": "0.30.13",
     "pdk": {
       "name": "sky130A",
       "source": "PDK_ROOT environment variable",
@@ -231,7 +229,7 @@
       "released": false
     },
     "input": {
-      "content_hash": "sha256:1b52a2f7b63659801d7b0e4dbe9660b62d6e9131d0fb07982d8e2089d5fd07b6",
+      "content_hash": "sha256:d40a46dfee662e6986ee112532e4005a4e1a7a7dd7e119a66558624555833b08",
       "role": "source"
     },
     "parameters": {}

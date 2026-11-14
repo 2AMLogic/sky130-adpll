@@ -31,13 +31,15 @@ module adpll_loop_filter #(
     // Integrator update, saturating at +/- full scale (W is wide enough that
     // the sum cannot wrap before the clamp).
     wire signed [W-1:0] isum = integ_x + err_x;
-    // Concatenations are unsigned, so sign-extend into signed wires before
-    // comparing.
-    wire signed [W-1:0] imax_x = {{(W-INT_W){IMAX[INT_W-1]}}, IMAX};
-    wire signed [W-1:0] imin_x = {{(W-INT_W){IMIN[INT_W-1]}}, IMIN};
+    // Concatenations are unsigned, so sign-extend explicitly to W bits before
+    // comparing. These are localparams, not nets: a net would be kept as a
+    // public wire and tied off by 2 x W conb_1 cells even though constant
+    // folding leaves no reader (issue #69).
+    localparam signed [W-1:0] IMAX_X = {{(W-INT_W){IMAX[INT_W-1]}}, IMAX};
+    localparam signed [W-1:0] IMIN_X = {{(W-INT_W){IMIN[INT_W-1]}}, IMIN};
     wire signed [INT_W-1:0] inext =
-        (isum > imax_x) ? IMAX :
-        (isum < imin_x) ? IMIN :
+        (isum > IMAX_X) ? IMAX :
+        (isum < IMIN_X) ? IMIN :
         isum[INT_W-1:0];
 
     wire signed [W-1:0] raw = MID + (err_x >>> KP_SHIFT) + (integ_x >>> KI_SHIFT);
