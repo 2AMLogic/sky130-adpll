@@ -45,8 +45,10 @@ The committed record is the verdict of record; it is graded, not hand-read.
   `v0.8.0` (commit `c572046be644`, git blob `2f7f69825f8c93d13237dce6df9ac6c122ddd6ac`,
   unchanged from the previous vendored copy). Upstream is MIT-licensed.
   Re-vendor from a named tag when upstream moves.
-- `check-signoff.sh`: what CI and `npm run check:ci` run. It fails if `klt` is
-  missing or a record has drifted.
+- `check-signoff.sh`: what CI and `npm run check:ci` run. It resolves `klt`
+  from `.venv/bin` first (the pin that `scripts/setup-env.sh` installs), then
+  falls back to `klt` on PATH. It fails if neither is present or a record has
+  drifted.
 - `check-reuse-lock.sh`: what CI and `npm run check:ci` run. It re-hashes every
   `reuse.lock.json` entry that carries a `sha256` against the committed file
   content (`HEAD`, not the working tree) and fails on any mismatch; entries
