@@ -17,6 +17,7 @@ uv pip install --python .venv/bin/python -r verification/requirements.txt
 .venv/bin/python verification/run_tests.py
 .venv/bin/python verification/check_records.py
 scripts/lint-rtl.sh
+python3 verification/selftest_run_tests.py  # runner CLI-gating self-test; no venv needed
 ```
 
 `run_tests.py` exits 0 only if the smoke tests pass **and** the negative
@@ -33,6 +34,7 @@ every record in that directory, and CI uploads them as the
 |---|---|
 | `run_tests.py` | runner: smoke group + negative-control group, writes the record |
 | `check_records.py` | validates a record (versions present, control failed on an assertion) |
+| `selftest_run_tests.py` | self-test of `run_tests.py`'s CLI gating (stdlib only; `python3 verification/selftest_run_tests.py`) |
 | `requirements.txt` | pinned Python deps |
 | `test_<block>.py` | per-block cocotb tests (loop filter, divider, lock detect, DCO code, top) |
 | `gate-level/` | re-runs `test_top` on the synthesized netlist (`run-gate-level.sh`, sim defines, committed record); pre-layout zero-delay functional, no SDF |
