@@ -4,6 +4,16 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #115**: manifests: attest reuse.lock.json under T1 item 10
+- **PR #112**: fix(verification): regrade gate-level record on the 515-instance netlist
+- **PR #111**: fix(manifests): resolve klt venv-first with PATH fallback in check-signoff.sh
+- **PR #110**: fix: echo iverilog compile diagnostics and fail the arm rule closed on non-int schema
+- **PR #103**: docs: refresh klt environment-record field to observed 0.8.0 and document partial-refresh convention
+- **Issue #105** (closed): check-reuse-lock.sh passes vacuously when reuse.lock.json carries no hashes
+- **Issue #107** (closed): check-signoff.sh resolves bare klt from PATH, so npm run check:ci drifts spuriously under a non-pinned host klt
+- **Issue #104** (closed): run_tests.py hides iverilog compile diagnostics in compile.log; check_records.py's arm rule fails open on a non-int schema
+- **Issue #96** (closed): environment.json freshness drift: klt_pinned_synth_par still records 0.6.0 while setup-env.sh pins 0.8.0, and recorded_on has no partial-refresh convention
+- **Issue #92** (closed): Gate-level record will name a netlist sha256 that no longer exists once #80 and #77 both land
 - **PR #109**: fix: fail run_tests when a gated tool exits non-zero instead of recording its stderr as a version
 - **PR #106**: fix: derive setup-env.sh --help header from the block itself
 - **PR #101**: feat: record the cell-model arm in result records, enforce it for gate level
