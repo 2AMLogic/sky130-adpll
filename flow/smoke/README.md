@@ -13,7 +13,13 @@ PDK=sky130A PDK_ROOT=$HOME/.ciel klt place-and-route par.json --format json > re
 ```
 
 `records/` holds the committed responses, the synthesized and routed netlists,
-DEF and GDS, and `environment.json` (commit, PDK pin, tool versions). The
+DEF and GDS, and `environment.json` (commit, PDK pin, tool versions).
+`environment.json` supports partial refreshes: `recorded_on` is the date of the
+original full recording session and does not move when individual fields are
+refreshed later; a refreshed field carries its own inline provenance
+annotation inside its value string (observed version, refresh date, and the
+issue that drove it), and a field without such an annotation dates to
+`recorded_on`. The
 utilization is 5% because the template's met4/met5 straps need a core wider
 than a 10-cell design gives at normal utilization. The par output had its
 absolute paths rewritten after the run.
