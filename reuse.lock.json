@@ -30,8 +30,8 @@
         "verification/check_records.py",
         "verification/gate-level/"
       ],
-      "diverged": false,
-      "notes": "Harness shape only (cocotb DUT helpers, record checker, gate-level pattern). No file content is vendored; the runner and checker here are new and much smaller. Pins to be revisited with the environment pin (#3)."
+      "diverged": true,
+      "notes": "Harness shape only (cocotb DUT helpers, record checker, gate-level pattern). No file content is vendored; the runner and checker here are new and much smaller. verification/gate-level/ takes the sibling's SHAPE -- a committed sky130_fd_sc_hd_sim_defines.v listed first on the source list, plus a wrapper script -- but not its content: run-gate-level.sh is written against this repo's verification/run_tests.py rather than the sibling's `klt functional-verification` request JSON, and the defines DIVERGE on UNIT_DELAY. The sibling defines it as `#1` to work around Icarus leaving D_delayed/CLK_delayed undriven under the timing arm; measured here (2AMLogic/sky130-adpll#70, Icarus 13.0): that all-x failure does not reproduce, and `#1` instead fails test_top.py:37 on seeds 12345/777/20260114 because test_top's tick() samples 1 ns after each ref_clk edge, exactly when a #1 flop output transitions. This repo defines UNIT_DELAY empty (zero delay). Pins to be revisited with the environment pin (#3)."
     }
   ]
 }

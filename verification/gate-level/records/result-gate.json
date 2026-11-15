@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "timestamp": "2026-11-14T06:27:53+00:00",
+  "commit": "f6c46a3883aff3e5680a999febccf3759d018075",
+  "dirty": false,
+  "level": "gate",
+  "dut": {
+    "sources": [
+      "verification/gate-level/sky130_fd_sc_hd_sim_defines.v",
+      "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+      "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+      "flow/adpll/records/adpll_top_synth.v"
+    ],
+    "toplevel": "adpll_top"
+  },
+  "seed": 12345,
+  "tools": {
+    "iverilog": "Icarus Verilog version 13.0 (stable) (v13_0)",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20261014",
+    "yosys": "Yosys 0.67+post (git sha1 b8e7da6f40ae8f552c116bf6c359b07c6533e159, Release, GNU /usr/bin/c++ 13.3.0)",
+    "cocotb": "1.9.2",
+    "python": "3.13.16"
+  },
+  "tests": [
+    {
+      "name": "test_integrates_and_locks",
+      "passed": true,
+      "assertion_failure": false,
+      "expected_fail": false,
+      "ok": true
+    },
+    {
+      "name": "negative_control",
+      "passed": false,
+      "assertion_failure": true,
+      "expected_fail": true,
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "problems": []
+}
