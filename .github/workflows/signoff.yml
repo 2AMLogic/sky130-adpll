@@ -29,6 +29,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check reuse.lock.json hashes match committed content
+        run: sh manifests/check-reuse-lock.sh
+
       # Pinned to the klayout-tools 0.8.0 release on PyPI. Keep in step with
       # manifests/README.md and scripts/setup-env.sh.
       - name: Install pinned klt

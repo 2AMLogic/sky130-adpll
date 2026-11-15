@@ -8,7 +8,8 @@
     "test": ".venv/bin/python verification/run_tests.py",
     "check:records": ".venv/bin/python verification/check_records.py",
     "check:signoff": "sh manifests/check-signoff.sh",
-    "check:ci": "npm run lint && npm run test && npm run check:records && npm run check:signoff",
+    "check:reuse-lock": "sh manifests/check-reuse-lock.sh",
+    "check:ci": "npm run lint && npm run test && npm run check:records && npm run check:reuse-lock && npm run check:signoff",
     "check:all": "npm run check:ci"
   }
 }
