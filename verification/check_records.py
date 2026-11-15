@@ -6,9 +6,10 @@ With no argument, checks every <suite>.json under sim/build/verification/
 (and fails if there are none).
 Checks schema, that tool versions and the commit are present, that the
 smoke tests passed, and that every expected-fail test (the negative
-control) actually failed. A gate-level record at schema >= 2 must also
-state the cell-model arm the compile selected and it must be the
-functional one; schema-1 records are grandfathered. Exit 0 pass, 1 invalid.
+control) actually failed. A gate-level record at any schema other than
+the grandfathered int 1 must also state the cell-model arm the compile
+selected and it must be the functional one; schema-1 records are
+grandfathered. Exit 0 pass, 1 invalid.
 """
 
 import json
@@ -50,19 +51,23 @@ def check(rec):
                 errs.append(f"{t['name']}: expected {want} but did not")
             elif t["expected_fail"] and not t.get("assertion_failure"):
                 errs.append(f"{t['name']}: control failed but not on an assertion")
-    # Gate-level records at schema >= 2 must state the cell-model arm the
-    # compile selected, and it must be the functional one: a timing-arm record
-    # carries the models' built-in typ delays -- an unstated timing claim.
-    # Schema-1 records predate the field and are grandfathered. Appended
-    # before the 'ok' comparison below, so a wrong-arm record claiming
-    # "ok": true is reported as both.
-    if (rec["level"] == "gate" and isinstance(rec["schema"], int)
-            and rec["schema"] >= 2):
+    # Gate-level records must state the cell-model arm the compile selected,
+    # and it must be the functional one: a timing-arm record carries the
+    # models' built-in typ delays -- an unstated timing claim. Fail closed:
+    # only a literal int 1 is the grandfathered schema, so any other spelling
+    # of the schema value ("2", 2.0, a bool ...) still requires the arm.
+    # `type(...) is int`, not isinstance(): isinstance(True, int) is True and
+    # True == 1, so a bool would otherwise be grandfathered. Appended before
+    # the 'ok' comparison below, so a wrong-arm record claiming "ok": true is
+    # reported as both.
+    grandfathered = type(rec["schema"]) is int and rec["schema"] == 1
+    if rec["level"] == "gate" and not grandfathered:
         method = rec.get("method")
         arm = method.get("cell_model_arm") if isinstance(method, dict) else None
         if arm is None:
             errs.append(
-                "gate-level record (schema >= 2) missing method.cell_model_arm"
+                "gate-level record (non-grandfathered schema) "
+                "missing method.cell_model_arm"
             )
         elif arm != "functional":
             errs.append(

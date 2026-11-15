@@ -70,6 +70,29 @@ class CellModelArmRule(unittest.TestCase):
         del rec["method"]
         self.assertEqual(check(rec), [])
 
+    def test_gate_bool_schema_is_rejected(self):
+        # isinstance(True, int) is True and True == 1, so a bool schema must
+        # not be grandfathered: the arm stays required.
+        rec = record(schema=True)
+        del rec["method"]
+        errs = check(rec)
+        self.assertTrue(
+            any("missing method.cell_model_arm" in e for e in errs), errs)
+
+    def test_gate_string_schema_is_rejected(self):
+        rec = record(schema="2")
+        del rec["method"]
+        errs = check(rec)
+        self.assertTrue(
+            any("missing method.cell_model_arm" in e for e in errs), errs)
+
+    def test_gate_float_schema_is_rejected(self):
+        rec = record(schema=2.0)
+        del rec["method"]
+        errs = check(rec)
+        self.assertTrue(
+            any("missing method.cell_model_arm" in e for e in errs), errs)
+
     def test_arm_error_precedes_ok_disagreement(self):
         errs = check(record(method={"cell_model_arm": "timing"}, ok=True))
         self.assertTrue(any("timing arm" in e for e in errs), errs)
