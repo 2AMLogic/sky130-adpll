@@ -77,6 +77,8 @@ def tool_versions():
         if shutil.which(cmd[0]) is None:
             sys.exit(f"run_tests: required tool '{cmd[0]}' not found")
         r = sh(*cmd)
+        if r.returncode != 0:
+            sys.exit(f"run_tests: required tool '{cmd[0]}' exited with status {r.returncode}")
         lines = (r.stdout or r.stderr).strip().splitlines()
         out[name] = lines[0].strip() if lines else "unknown"
     import cocotb
