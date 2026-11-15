@@ -4,11 +4,13 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #95**: chore: drop yosys from the verification tool gate
 - **PR #89**: fix(setup-env): probe verilator in the toolchain check and correct the step-4 gate advisory
 - **PR #87**: docs: state the actual design status in the READMEs
 - **PR #86**: fix: reject --record with multi-suite registry run in run_tests.py
 - **PR #80**: rtl: make loop-filter saturation bounds localparams, dropping 64 tie cells
 - **PR #77**: feat(verification): run test_top on the synthesized netlist, with a cell-model-arm guard
+- **Issue #74** (closed): Drop yosys from the verification tool gate: the RTL/gate-level leg never invokes it
 - **Issue #85** (closed): setup-env.sh certifies a clean toolchain on a host that cannot run the gates it recommends: verilator unprobed, plus two dead references
 - **Issue #73** (closed): run_tests.py --record silently collapses five suite records into one: reject the combination it cannot express
 - **Issue #70** (closed): Gate-level re-run slot is still documentation only: run the top suite on the synthesized ADPLL netlist
