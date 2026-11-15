@@ -18,8 +18,9 @@ layout. Nothing here is a measurement; every number in the target table below
 is a target, not a result.
 
 **Built agent-native.** Every specification, decision record, testbench, and
-line of documentation here is produced by AI agents working from a ratified
-spec and an append-only evidence trail — not human-authored work that agents
+line of documentation here is produced by AI agents working from the spec and
+decision records in `spec/` and an append-only evidence trail — not
+human-authored work that agents
 merely assisted with. Verification is the product: every claim traces to a
 recorded result under PVT corners. Where the agents hit friction with the
 open-source tooling — most often
@@ -88,8 +89,8 @@ commit: `flow/smoke/records/environment.json`. Vendored scripts: `reuse.lock.jso
 
 ```
 spec/          target spec + decision records (Proposed, not ratified)
-rtl/           loop filter, divider, control, and DCO/TDC structural RTL
-design/        cell-level netlists for the DCO and TDC characterization
+rtl/           loop filter, divider, lock detect, DCO code path, top level
+design/        structural netlists: the DCO ring (no phase detector yet)
 flow/          digital flow: smoke checks + synthesized netlist records
 sim/           SPICE testbenches + PVT corner results (ngspice)
 verification/  cocotb testbenches + behavioural loop model
