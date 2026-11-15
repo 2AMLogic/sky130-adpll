@@ -4,16 +4,21 @@
 # Fails (non-zero) if klt is missing, a render errors, or a record has drifted.
 set -eu
 cd "$(dirname "$0")/.."
+REPO_ROOT="$PWD"
 
-command -v klt >/dev/null 2>&1 || { echo "error: klt not on PATH (pin: see manifests/README.md)" >&2; exit 1; }
-klt --version
+KLT="${REPO_ROOT}/.venv/bin/klt"
+if [ ! -x "$KLT" ]; then
+    command -v klt >/dev/null 2>&1 || { echo "error: klt not on PATH (pin: see manifests/README.md)" >&2; exit 1; }
+    KLT=klt
+fi
+"$KLT" --version
 
-klt signoff --attest 1 --inventory manifests/item1.inventory.json \
+"$KLT" signoff --attest 1 --inventory manifests/item1.inventory.json \
     --check manifests/item1.attestation.json
-klt signoff --attest 9 --inventory manifests/item9.inventory.json \
+"$KLT" signoff --attest 9 --inventory manifests/item9.inventory.json \
     --check manifests/item9.attestation.json
-klt signoff --attest 10 --inventory manifests/item10.inventory.json \
+"$KLT" signoff --attest 10 --inventory manifests/item10.inventory.json \
     --check manifests/item10.attestation.json
-klt signoff --manifest manifests/sky130-adpll.json \
+"$KLT" signoff --manifest manifests/sky130-adpll.json \
     --tiers-doc manifests/design-evidence-tiers.md \
     --check manifests/sky130-adpll.signoff.json

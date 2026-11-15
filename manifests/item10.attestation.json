@@ -52,7 +52,7 @@
         "role": "hygiene",
         "path": "manifests/check-signoff.sh",
         "passed": true,
-        "content_hash": "sha256:d3054d431d7ac615988786540e5f22f74307da57ff376320f60fdcfec1dbaace"
+        "content_hash": "sha256:a00638a955c1718f5ff4f4b5e2f0b49991d28c7cd5e1508f70e84089a633bc5e"
       },
       {
         "check": "present",
