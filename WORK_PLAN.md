@@ -21,30 +21,40 @@ _None._
 
 - **#2**: Draft and ratify the target spec
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
+- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md
+- **#71**: CI's verification-result artifact uploads nothing: the upload path matches no record the multi-suite runner writes
 
 ## Ready
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#69**: Loop filter synthesizes 64 conb_1 tie cells for constants no logic reads: remove them and regenerate the netlist
+- **#71**: CI's verification-result artifact uploads nothing: the upload path matches no record the multi-suite runner writes
+- **#73**: run_tests.py --record silently collapses five suite records into one: reject the combination it cannot express
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
+- **#68**: Item-10 inventory predates the verification CI job: add ci.yml and regenerate the attestation
+- **#70**: Gate-level re-run slot is still documentation only: run the top suite on the synthesized ADPLL netlist
+- **#72**: Remove dead export surface in verification/_common.py: to_signed and the unused trigger re-exports
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#21**: ratification: install ee-key and market-key reviewer trees
+- **#66**: docs: roadmap as of 2026-11-13
+- **#77**: feat(verification): run test_top on the synthesized netlist, with a cell-model-arm guard
+- **#78**: refactor: drop unused to_signed, trigger re-exports and __all__ from test helpers
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#75**: chore: attest .github/workflows/ci.yml in the item-10 hygiene inventory
 
 ## Proposed
 
@@ -54,10 +64,14 @@ Issues carrying `loom:curated`.
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
 - **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)*
 - **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)*
+- **#67**: README status is stale: it says nothing is designed, while RTL, a synthesized netlist and 3 of 11 T1 items are on main *(curated)*
+- **#68**: Item-10 inventory predates the verification CI job: add ci.yml and regenerate the attestation *(curated)*
+- **#69**: Loop filter synthesizes 64 conb_1 tie cells for constants no logic reads: remove them and regenerate the netlist *(curated)*
+- **#70**: Gate-level re-run slot is still documentation only: run the top suite on the synthesized ADPLL netlist *(curated)*
 
 ## Proposed (Architect / Hermit)
 
-_None._
+- **#74**: Drop yosys from the verification tool gate: the RTL/gate-level leg never invokes it *(hermit)*
 
 ## Epics
 
@@ -69,12 +83,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
-| Important | 2 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
-| Curated | 4 |
-| Architect / Hermit proposals | 0 |
+| Important | 4 |
+| Ready (`loom:issue`) | 3 |
+| In Progress (`loom:building`) | 4 |
+| PRs awaiting review | 4 |
+| Approved PRs awaiting merge | 1 |
+| Curated | 8 |
+| Architect / Hermit proposals | 1 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
