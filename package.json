@@ -10,7 +10,8 @@
     "check:record-schema": ".venv/bin/python -m unittest discover -s verification -p 'test_record_schema.py'",
     "check:selftest": "python3 verification/selftest_run_tests.py",
     "check:signoff": "sh manifests/check-signoff.sh",
-    "check:ci": "npm run lint && npm run test && npm run check:records && npm run check:record-schema && npm run check:selftest && npm run check:signoff",
+    "check:reuse-lock": "sh manifests/check-reuse-lock.sh",
+    "check:ci": "npm run lint && npm run test && npm run check:records && npm run check:record-schema && npm run check:selftest && npm run check:reuse-lock && npm run check:signoff",
     "check:all": "npm run check:ci"
   }
 }

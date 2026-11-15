@@ -35,6 +35,7 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 cd "${REPO_ROOT}" || exit 1
 
 # --- pinned versions -- keep in sync with flow/smoke/records/environment.json ---
@@ -69,7 +70,7 @@ for arg in "$@"; do
       PDK_ROOT="${arg#--pdk-root=}"
       ;;
     -h|--help)
-      sed -n '2,32p' "${BASH_SOURCE[0]}"
+      awk 'NR > 1 && /^#/ { print; next } NR > 1 { exit }' "${SELF}"
       exit 0
       ;;
     *)

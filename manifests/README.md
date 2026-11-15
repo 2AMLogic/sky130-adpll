@@ -32,9 +32,10 @@ The committed record is the verdict of record; it is graded, not hand-read.
   attests that the listed benches exist and run, with pins recorded. Results are
   simulated, none measured.
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
-  the README, the licence, both CI workflows (`ci.yml`, `signoff.yml`) and
-  `check-signoff.sh`. The verification suite's own files are item 9's inventory,
-  not this one.
+  the README, the licence, both CI workflows (`ci.yml`, `signoff.yml`), both
+  hygiene checkers (`check-signoff.sh`, `check-reuse-lock.sh`) and the RTL lint
+  script (`scripts/lint-rtl.sh`). The verification suite's own files are item
+  9's inventory, not this one.
 - `item10.attestation.json`: tool-produced envelope from
   `klt signoff --attest 10`. The grade rests on file presence plus one command
   check (no placeholder scripts in `package.json`); it does not show that every
@@ -46,6 +47,13 @@ The committed record is the verdict of record; it is graded, not hand-read.
   Re-vendor from a named tag when upstream moves.
 - `check-signoff.sh`: what CI and `npm run check:ci` run. It fails if `klt` is
   missing or a record has drifted.
+- `check-reuse-lock.sh`: what CI and `npm run check:ci` run. It re-hashes every
+  `reuse.lock.json` entry that carries a `sha256` against the committed file
+  content (`HEAD`, not the working tree) and fails on any mismatch; entries
+  with no hashes (`mode: "referenced"`) are skipped. When a pinned script
+  changes, re-record its hash in `reuse.lock.json` in the same PR
+  (`git cat-file blob HEAD:<path> | sha256sum` after committing, or
+  `sha256sum <path>` in a clean checkout).
 
 ## klt pin
 
