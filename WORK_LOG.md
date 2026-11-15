@@ -5,10 +5,12 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 ### 2026-11-15
 
 - **PR #115**: manifests: attest reuse.lock.json under T1 item 10
+- **PR #108**: test(verification): pin run_tests.py CLI gating with a stdlib self-test
 - **PR #112**: fix(verification): regrade gate-level record on the 515-instance netlist
 - **PR #111**: fix(manifests): resolve klt venv-first with PATH fallback in check-signoff.sh
 - **PR #110**: fix: echo iverilog compile diagnostics and fail the arm rule closed on non-int schema
 - **PR #103**: docs: refresh klt environment-record field to observed 0.8.0 and document partial-refresh convention
+- **Issue #90** (closed): No automated coverage for run_tests.py's own CLI gating: the --record guard can regress silently
 - **Issue #105** (closed): check-reuse-lock.sh passes vacuously when reuse.lock.json carries no hashes
 - **Issue #107** (closed): check-signoff.sh resolves bare klt from PATH, so npm run check:ci drifts spuriously under a non-pinned host klt
 - **Issue #104** (closed): run_tests.py hides iverilog compile diagnostics in compile.log; check_records.py's arm rule fails open on a non-int schema
