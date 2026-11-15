@@ -128,7 +128,8 @@ def main():
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--build-dir", default=str(REPO / "sim/build/verification"))
     ap.add_argument("--record", default=None,
-                    help="record path (default: <build-dir>/<suite>.json)")
+                    help="record path for a single DUT (--suite NAME or --sources; "
+                         "default: <build-dir>/<suite>.json)")
     ap.add_argument("--level", default="rtl", help="rtl | gate (recorded only)")
     args = ap.parse_args()
 
@@ -137,6 +138,10 @@ def main():
             if getattr(args, flag) is None:
                 ap.error(f"--sources requires --{flag.replace('_', '-')}")
         return run_one(args, "custom")
+    if args.record is not None and args.suite == "all":
+        # One path cannot hold five suites' records; the registry loop would
+        # have each suite overwrite the last, silently losing four of five.
+        ap.error("--record names one record; use --suite NAME or --sources")
     rc = 0
     for name in (sorted(SUITES) if args.suite == "all" else [args.suite]):
         srcs, top, mod, tests, tdir = SUITES[name]
