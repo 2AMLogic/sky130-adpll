@@ -31,14 +31,14 @@
         "role": "testbench",
         "path": "verification/check_records.py",
         "passed": true,
-        "content_hash": "sha256:f5262fcb3e66de4d53fbae0558e53b998d563b5cd4d5098873e0edc358076bc9"
+        "content_hash": "sha256:df54c2af5165cafa6234a2890e6e8737f99f13f9d961be7f816322a1b88e867c"
       },
       {
         "check": "present",
         "role": "testbench",
         "path": "verification/run_tests.py",
         "passed": true,
-        "content_hash": "sha256:12ec69c439219dcf82a588130c529b92e6cdcf3514d903bc418f9af5bb1a10de"
+        "content_hash": "sha256:de0c49e0c323a6e34fc7667ad207de7422348b64a1d630fd2c79939b8e465439"
       },
       {
         "check": "present",

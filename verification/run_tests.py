@@ -3,8 +3,11 @@
 
 Runs the smoke tests (must pass) and the negative control (must fail) as two
 simulator invocations, then writes one JSON record with per-test pass/fail,
-seed, commit and tool versions. Exit 0 only if every smoke test passed AND
-the negative control failed. A missing tool is an error, never a skip.
+seed, commit, tool versions and the cell-model arm the compile selected
+(method.cell_model_arm, derived from the captured compile log). A gate-level
+run that selected the models' timing arm is a recorded problems[] failure.
+Exit 0 only if every smoke test passed AND the negative control failed. A
+missing tool is an error, never a skip.
 
 Cold start (from the repo root):
     uv venv .venv && uv pip install --python .venv/bin/python -r verification/requirements.txt
@@ -28,6 +31,19 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 CONTROL = "negative_control"
 RTL = REPO / "rtl"
+COMPILE_LOG = "compile.log"
+
+
+def cell_model_arm(log_path):
+    """Cell-model arm the compile selected, from its own log: any
+    'Choosing typ expression' warning means the models' specify/timing arm
+    was selected. A missing or unreadable log is an error, never a silent
+    pass -- an unknown arm must not be recorded as the functional one."""
+    try:
+        text = log_path.read_text(errors="replace")
+    except OSError as e:
+        sys.exit(f"run_tests: compile log missing or unreadable ({log_path}): {e}")
+    return "timing" if "Choosing typ expression" in text else "functional"
 
 # DUT registry: name -> (sources, toplevel, test module, smoke testcases).
 # Every module also carries a `negative_control`.
@@ -92,6 +108,7 @@ def simulate(args, build_dir, testcase, seed):
         hdl_toplevel=args.toplevel,
         build_dir=build_dir,
         always=True,
+        log_file=build_dir / COMPILE_LOG,
     )
     xml = build_dir / f"results_{testcase}.xml"
     marker = build_dir / "control_assertion.marker"
@@ -129,7 +146,8 @@ def main():
     ap.add_argument("--record", default=None,
                     help="record path for a single DUT (--suite NAME or --sources; "
                          "default: <build-dir>/<suite>.json)")
-    ap.add_argument("--level", default="rtl", help="rtl | gate (recorded only)")
+    ap.add_argument("--level", choices=("rtl", "gate"), default="rtl",
+                    help="rtl | gate")
     args = ap.parse_args()
 
     if args.sources is not None:
@@ -166,6 +184,18 @@ def run_one(args, name):
     smoke = simulate(args, smoke_dir, args.tests, seed)
     control = simulate(args, ctl_dir, CONTROL, seed)
 
+    # Both compiles are handed the same --sources, so the two arms must agree;
+    # a disagreement is a runner bug to fail on, not a tolerable case.
+    smoke_arm = cell_model_arm(smoke_dir / COMPILE_LOG)
+    control_arm = cell_model_arm(ctl_dir / COMPILE_LOG)
+    if smoke_arm != control_arm:
+        sys.exit(
+            f"run_tests: the two compiles selected different cell-model arms "
+            f"(smoke: {smoke_arm}, control: {control_arm}); both are handed the "
+            "same --sources, so this is a runner bug, not a tolerable case"
+        )
+    arm = smoke_arm
+
     tests = [dict(t, expected_fail=False) for t in smoke]
     tests += [dict(t, expected_fail=True) for t in control]
     problems = []
@@ -181,11 +211,18 @@ def run_one(args, name):
     for t in tests:
         if t["expected_fail"] and not t["passed"] and not t["assertion_failure"]:
             problems.append(f"{t['name']}: failed, but not on an assertion")
+    if args.level == "gate" and arm != "functional":
+        problems.append(
+            f"gate-level run selected the cell models' timing arm ({arm}), not "
+            "the functional one: the result carries the models' built-in typ "
+            "delays -- an unstated timing claim. Define FUNCTIONAL before the "
+            "models (a sim-defines file first on --sources does this) and re-run."
+        )
 
     rev = sh("git", "rev-parse", "HEAD").stdout.strip() or "unknown"
     dirty = bool(sh("git", "status", "--porcelain", "--untracked-files=no").stdout.strip())
     record = {
-        "schema": 1,
+        "schema": 2,
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "commit": rev,
         "dirty": dirty,
@@ -193,6 +230,7 @@ def run_one(args, name):
         "dut": {"sources": [os.path.relpath(s, REPO) for s in args.sources], "toplevel": args.toplevel},
         "seed": seed,
         "tools": versions,
+        "method": {"cell_model_arm": arm},
         "tests": tests,
         "ok": not problems,
         "problems": problems,

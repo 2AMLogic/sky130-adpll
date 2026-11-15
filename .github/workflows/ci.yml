@@ -33,6 +33,9 @@ jobs:
       - name: Validate result record
         run: .venv/bin/python verification/check_records.py
 
+      - name: Record-schema unit tests
+        run: .venv/bin/python -m unittest discover -s verification -p 'test_record_schema.py'
+
       - name: Upload result record
         if: always()
         uses: actions/upload-artifact@v4
