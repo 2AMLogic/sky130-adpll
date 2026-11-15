@@ -29,6 +29,7 @@ for entry in lock.get("entries", []):
         recorded = rec.get("sha256")
         if not path or not recorded:
             continue  # no hash attested, nothing to check
+        checked += 1
         try:
             blob = subprocess.run(
                 ["git", "cat-file", "blob", f"HEAD:{path}"],
@@ -38,7 +39,6 @@ for entry in lock.get("entries", []):
             failures.append(f"{path}: recorded {recorded}, but the file is not in HEAD")
             continue
         actual = hashlib.sha256(blob).hexdigest()
-        checked += 1
         if actual != recorded:
             failures.append(f"{path}: recorded {recorded}, committed content hashes to {actual}")
 
