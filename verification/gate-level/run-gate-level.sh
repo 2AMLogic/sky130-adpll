@@ -13,21 +13,20 @@
 #   2. Verifies every source file on the list exists -- a missing PDK or model
 #      file is a hard error with the path, never a skip and never a Python
 #      traceback.
-#   3. Compiles the source list with iverilog and REFUSES to continue if the
-#      cell models' timing arm was selected. Omitting `FUNCTIONAL` does not
-#      fail: it silently produces a timing simulation that passes, whose
-#      record is indistinguishable from this one but carries the models'
-#      built-in typ delays. A `Choosing typ expression' warning is the tell.
-#   4. Runs verification/run_tests.py (unmodified, --level gate) on the
-#      netlist with the RTL suite's own test module, test_top.
-#   5. Writes a companion method note beside the record naming the netlist
+#   3. Runs verification/run_tests.py (--level gate) on the netlist with the
+#      RTL suite's own test module, test_top. run_tests.py itself captures the
+#      compile log, derives the cell-model arm from it, records the arm in the
+#      record and fails a gate-level run that selected the timing arm -- so
+#      this wrapper carries no duplicate of that check.
+#   4. Writes a companion method note beside the record naming the netlist
 #      sha256 that was graded, the defines, the PDK revision and the seed --
-#      the record schema has no field for any of those.
+#      fields the record schema does not carry.
 #
 # Exit codes:
 #   0  smoke test passed, negative control failed on its assertion, record written
-#   1  a pre-check failed (PDK/model/netlist/toolchain), the wrong cell-model
-#      arm was selected, or the simulation did not meet the expectation
+#   1  a pre-check failed (PDK/model/netlist/toolchain) or the run did not
+#      meet its expectation -- including the timing-arm refusal, which
+#      run_tests.py reports as a PROBLEM line and a failed record
 #
 # Usage:
 #   ./verification/gate-level/run-gate-level.sh
@@ -71,16 +70,16 @@ for arg in "$@"; do
     --record=*)   RECORD="${arg#--record=}"; NOTE="${RECORD%.json}.method.md" ;;
     --pdk-root|--seed|--record)
       die "${arg} requires a value, e.g. ${arg}=<value>" ;;
-    -h|--help)    sed -n '2,46p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    -h|--help)    sed -n '2,40p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *)            die "unknown option: ${arg}" ;;
   esac
 done
 
-# --- 1/4 PDK revision ------------------------------------------------------
+# --- 1/3 PDK revision ------------------------------------------------------
 # The pin lives in exactly one place: scripts/setup-env.sh. Parse it rather
 # than duplicating it, so a re-pin there cannot leave this script grading a
 # different PDK than the one the environment provisions.
-echo "== 1/4 sky130A PDK under ${PDK_ROOT} =="
+echo "== 1/3 sky130A PDK under ${PDK_ROOT} =="
 [ -f "${SETUP_ENV}" ] || die "${SETUP_ENV} not found; cannot read the PDK pin."
 PINNED_PDK="$(sed -n 's/^CIEL_SKY130_VERSION="\([0-9a-f]\{40\}\)"$/\1/p' "${SETUP_ENV}" | head -1)"
 [ -n "${PINNED_PDK}" ] ||
@@ -103,7 +102,7 @@ if ! grep -q "${PINNED_PDK}" "${SOURCES_FILE}"; then
 fi
 echo "  open_pdks ${PINNED_PDK:0:12} verified via SOURCES"
 
-# --- 2/4 source list -------------------------------------------------------
+# --- 2/3 source list -------------------------------------------------------
 # The defines file MUST come first: iverilog shares one macro scope across the
 # files named on its command line and evaluates each cell's `ifdef FUNCTIONAL
 # where it appears, and run_tests.py preserves the order given here.
@@ -116,7 +115,7 @@ SOURCES=(
 )
 
 echo
-echo "== 2/4 source list =="
+echo "== 2/3 source list =="
 for src in "${SOURCES[@]}"; do
   [ -f "${src}" ] ||
     die "source file not found: ${src}
@@ -134,39 +133,12 @@ command -v iverilog >/dev/null 2>&1 ||
   -> run ${SETUP_ENV} to create the venv (it installs cocotb), or set
      PYTHON=<interpreter with cocotb> explicitly."
 
-# --- 3/4 method guard ------------------------------------------------------
-# Refuse to mint a record from the wrong cell-model arm. This is the whole
-# reason the step exists: without `FUNCTIONAL the compile still exits 0 and
-# the suite still passes, so nothing downstream would catch it.
+# --- 3/3 simulation --------------------------------------------------------
+# The arm guard lives in run_tests.py itself now: it captures the compile log,
+# derives the cell-model arm from it and fails a gate-level run that selected
+# the timing arm. This wrapper carries no duplicate of that check.
 echo
-echo "== 3/4 cell-model arm (method guard) =="
-COMPILE_LOG="$(mktemp -t gate-level-compile.XXXXXX)"
-COMPILE_OUT="$(mktemp -t gate-level-compile.XXXXXX.vvp)"
-trap 'rm -f "${COMPILE_LOG}" "${COMPILE_OUT}"' EXIT
-if ! iverilog -o "${COMPILE_OUT}" -s "${TOPLEVEL}" "${SOURCES[@]}" \
-     >"${COMPILE_LOG}" 2>&1; then
-  sed 's/^/    /' "${COMPILE_LOG}" >&2
-  die "iverilog could not compile the source list above."
-fi
-if grep -q "Choosing typ expression" "${COMPILE_LOG}"; then
-  grep "Choosing typ expression" "${COMPILE_LOG}" | sort | uniq -c |
-    head -5 | sed 's/^/    /' >&2
-  die "the cell models' specify/timing arm was selected, not the behavioural one.
-  -> this run would produce a passing record carrying the models' built-in typ
-     delays -- an unstated timing claim. Check that ${DEFINES} defines
-     FUNCTIONAL and is listed FIRST on the source list above."
-fi
-if [ -s "${COMPILE_LOG}" ]; then
-  echo "  NOTE: the compile was not warning-free ($(wc -l < "${COMPILE_LOG}" | tr -d ' ') lines):"
-  sort "${COMPILE_LOG}" | uniq -c | head -5 | sed 's/^/    /'
-  echo "  (not fatal, but the expected result is zero warnings -- see ${DEFINES})"
-else
-  echo "  warning-free compile: FUNCTIONAL arm, zero delay, no timing claim"
-fi
-
-# --- 4/4 simulation --------------------------------------------------------
-echo
-echo "== 4/4 cocotb run (test_top on the netlist, --level gate) =="
+echo "== 3/3 cocotb run (test_top on the netlist, --level gate) =="
 # --build-dir must be ABSOLUTE: cocotb's runner resolves results_xml relative
 # to --test-dir (it chdir's there to run the simulator), so a relative build
 # dir sends the xml to verification/<build-dir>/... while the simulator writes

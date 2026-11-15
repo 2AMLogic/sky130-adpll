@@ -6,7 +6,9 @@ With no argument, checks every <suite>.json under sim/build/verification/
 (and fails if there are none).
 Checks schema, that tool versions and the commit are present, that the
 smoke tests passed, and that every expected-fail test (the negative
-control) actually failed. Exit 0 pass, 1 invalid.
+control) actually failed. A gate-level record at schema >= 2 must also
+state the cell-model arm the compile selected and it must be the
+functional one; schema-1 records are grandfathered. Exit 0 pass, 1 invalid.
 """
 
 import json
@@ -48,6 +50,26 @@ def check(rec):
                 errs.append(f"{t['name']}: expected {want} but did not")
             elif t["expected_fail"] and not t.get("assertion_failure"):
                 errs.append(f"{t['name']}: control failed but not on an assertion")
+    # Gate-level records at schema >= 2 must state the cell-model arm the
+    # compile selected, and it must be the functional one: a timing-arm record
+    # carries the models' built-in typ delays -- an unstated timing claim.
+    # Schema-1 records predate the field and are grandfathered. Appended
+    # before the 'ok' comparison below, so a wrong-arm record claiming
+    # "ok": true is reported as both.
+    if (rec["level"] == "gate" and isinstance(rec["schema"], int)
+            and rec["schema"] >= 2):
+        method = rec.get("method")
+        arm = method.get("cell_model_arm") if isinstance(method, dict) else None
+        if arm is None:
+            errs.append(
+                "gate-level record (schema >= 2) missing method.cell_model_arm"
+            )
+        elif arm != "functional":
+            errs.append(
+                f"gate-level record selected the cell models' timing arm "
+                f"(method.cell_model_arm: {arm!r}); the result carries the "
+                "models' built-in typ delays -- an unstated timing claim"
+            )
     if rec["ok"] is not (not errs):
         errs.append("'ok' field disagrees with the checked contents")
     return errs

@@ -53,9 +53,15 @@ and a record whose `"ok": true` and `"level": "gate"` are **indistinguishable
 from the intended one** — while carrying the models' built-in typ delays, i.e.
 an unstated timing claim.
 
-Nothing in the record schema catches that, so `run-gate-level.sh` does: it
-compiles the source list first and refuses to run the simulation if it sees a
-`Choosing typ expression` warning. The expected compile is warning-free.
+The record now states the method it used. `run_tests.py` captures its own
+compile log, derives the cell-model arm from it (any `Choosing typ
+expression` warning means the timing arm was selected) and records the arm as
+`method.cell_model_arm` in every record. A `--level gate` run that selected
+the timing arm is a recorded `problems[]` failure with a non-zero exit, and
+`check_records.py` independently fails any schema-2 gate record whose arm is
+missing or not `functional`. The check lives in the runner, so the direct
+`run_tests.py` invocation documented below is no longer the unguarded path.
+The expected compile is warning-free.
 
 Two more measured details behind `sky130_fd_sc_hd_sim_defines.v`:
 
@@ -97,8 +103,12 @@ one test module:
 - `--build-dir` must be an **absolute** path. cocotb's runner resolves the
   results XML relative to `--test-dir`, so a relative build dir makes the run
   report "simulator produced no results" even when every test passed.
-- `--level gate` is recorded in the result; the sources are recorded too, so
-  `dut.sources[0]` names the defines file that selected the functional arm.
+- `--level` is restricted to `rtl` | `gate` (any other spelling is an
+  argparse error, so the enforcement cannot be dodged by a variant) and
+  recorded; `run_tests.py` captures the compile log and records the selected
+  cell-model arm as `method.cell_model_arm`, failing a gate run that selected
+  the timing arm. The sources are recorded too, so `dut.sources[0]` names the
+  defines file that selected the functional arm.
 - The netlist must keep the RTL port names, since the tests drive ports by name.
 - Gate-level needs the sky130 cell models and sim defines on the source list.
   Shape taken from `2AMLogic/sky130-modexp` @
