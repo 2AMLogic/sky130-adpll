@@ -6,6 +6,9 @@ simulator invocations, then writes one JSON record with per-test pass/fail,
 seed, commit, tool versions and the cell-model arm the compile selected
 (method.cell_model_arm, derived from the captured compile log). A gate-level
 run that selected the models' timing arm is a recorded problems[] failure.
+With --netlist, the designated netlist's repo-relative path and its sha256
+are recorded too (dut.netlist / dut.netlist_sha256), so check_records.py can
+re-derive the hash and fail a record the tree no longer backs.
 Exit 0 only if every smoke test passed AND the negative control failed. A
 missing tool is an error, never a skip.
 
@@ -17,6 +20,7 @@ Gate-level re-run: see verification/gate-level/README.md (--sources/--toplevel).
 """
 
 import argparse
+import hashlib
 import json
 import os
 import random
@@ -167,6 +171,11 @@ def main():
                          "default: <build-dir>/<suite>.json)")
     ap.add_argument("--level", choices=("rtl", "gate"), default="rtl",
                     help="rtl | gate")
+    ap.add_argument("--netlist", default=None,
+                    help="designated netlist file; records its repo-relative "
+                         "path and sha256 into the record (dut.netlist / "
+                         "dut.netlist_sha256) so check_records.py can verify "
+                         "the record against the committed netlist")
     args = ap.parse_args()
 
     if args.sources is not None:
@@ -240,13 +249,20 @@ def run_one(args, name):
 
     rev = sh("git", "rev-parse", "HEAD").stdout.strip() or "unknown"
     dirty = bool(sh("git", "status", "--porcelain", "--untracked-files=no").stdout.strip())
+    dut = {"sources": [os.path.relpath(s, REPO) for s in args.sources], "toplevel": args.toplevel}
+    if args.netlist is not None:
+        netlist = Path(args.netlist)
+        if not netlist.is_file():
+            sys.exit(f"run_tests: --netlist file not found: {netlist}")
+        dut["netlist"] = os.path.relpath(netlist.resolve(), REPO)
+        dut["netlist_sha256"] = hashlib.sha256(netlist.read_bytes()).hexdigest()
     record = {
         "schema": 2,
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "commit": rev,
         "dirty": dirty,
         "level": args.level,
-        "dut": {"sources": [os.path.relpath(s, REPO) for s in args.sources], "toplevel": args.toplevel},
+        "dut": dut,
         "seed": seed,
         "tools": versions,
         "method": {"cell_model_arm": arm},

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Unit tests for check_records.py's cell-model-arm rule (stdlib only).
+"""Unit tests for check_records.py's cell-model-arm and netlist-hash rules
+(stdlib only).
 
 Run from the repo root:
     .venv/bin/python -m unittest discover -s verification \
@@ -10,21 +11,40 @@ The discovery pattern is pinned in package.json and .github/workflows/ci.yml
 so unittest never tries to import the cocotb test modules in this directory.
 """
 
+import hashlib
+import tempfile
 import unittest
+from pathlib import Path
 
 from check_records import check
 
+NETLIST = "flow/adpll/records/adpll_top_synth.v"
+
 
 def record(**over):
-    """A minimal valid schema-2 gate record; keyword args override fields."""
+    """A minimal valid schema-2 gate record; keyword args override fields.
+
+    Mirrors the committed gate record: the designated netlist is the
+    synthesized netlist and the PDK model paths sit outside the repo (only
+    dut.netlist is ever hashed). The recorded digest is derived from the
+    tree at import, never a literal, so the fixture cannot itself become a
+    stale-hash drift site.
+    """
     rec = {
         "schema": 2,
         "timestamp": "2026-11-15T00:00:00+00:00",
         "commit": "a" * 40,
         "dirty": False,
         "level": "gate",
-        "dut": {"sources": ["verification/gate-level/sky130_fd_sc_hd_sim_defines.v"],
-                "toplevel": "adpll_top"},
+        "dut": {"sources": ["verification/gate-level/sky130_fd_sc_hd_sim_defines.v",
+                            "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+                            "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+                            NETLIST],
+                "toplevel": "adpll_top",
+                "netlist": NETLIST,
+                "netlist_sha256": hashlib.sha256(
+                    (Path(__file__).resolve().parent.parent / NETLIST).read_bytes()
+                ).hexdigest()},
         "seed": 12345,
         "tools": {"iverilog": "Icarus Verilog 13.0", "verilator": "Verilator 5.050",
                   "cocotb": "1.9.2", "python": "3.12.3"},
@@ -99,6 +119,121 @@ class CellModelArmRule(unittest.TestCase):
         self.assertTrue(any("'ok' field disagrees" in e for e in errs), errs)
         self.assertLess(
             next(i for i, e in enumerate(errs) if "timing arm" in e),
+            next(i for i, e in enumerate(errs) if "'ok' field disagrees" in e),
+        )
+
+
+class NetlistHashRule(unittest.TestCase):
+    """The rule hashes a real file, so these tests build a throwaway repo
+    root in a TemporaryDirectory and inject it as check()'s repo_root --
+    the injectable root exists precisely so tests never monkeypatch a
+    module global."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.netlist_rel = "flow/adpll/records/adpll_top_synth.v"
+        self.netlist = self.root / self.netlist_rel
+        self.netlist.parent.mkdir(parents=True)
+        self.netlist.write_bytes(b"module adpll_top(); endmodule\n")
+
+    def rec(self, **over):
+        r = record()
+        r["dut"] = {
+            "sources": ["verification/gate-level/sky130_fd_sc_hd_sim_defines.v",
+                        self.netlist_rel],
+            "toplevel": "adpll_top",
+            "netlist": self.netlist_rel,
+            "netlist_sha256": hashlib.sha256(self.netlist.read_bytes()).hexdigest(),
+        }
+        r.update(over)
+        return r
+
+    def test_hash_mismatch_fails_naming_both_hashes(self):
+        before = self.rec()
+        recorded = before["dut"]["netlist_sha256"]
+        with self.netlist.open("a") as f:
+            f.write("// regenerated: tie cells removed\n")
+        actual = hashlib.sha256(self.netlist.read_bytes()).hexdigest()
+        errs = check(before, repo_root=self.root)
+        self.assertTrue(
+            any("does not match" in e and recorded in e and actual in e for e in errs),
+            errs)
+
+    def test_missing_netlist_field_fails(self):
+        r = self.rec()
+        del r["dut"]["netlist"]
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("missing dut.netlist" in e for e in errs), errs)
+
+    def test_missing_sha_field_fails(self):
+        r = self.rec()
+        del r["dut"]["netlist_sha256"]
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("missing dut.netlist_sha256" in e for e in errs), errs)
+
+    def test_netlist_absent_from_tree_fails(self):
+        # A record naming a netlist that no longer exists is the #92 state:
+        # a missing file is a failure, never a skip.
+        r = self.rec()
+        self.netlist.unlink()
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("no longer exists" in e for e in errs), errs)
+
+    def test_netlist_not_in_sources_fails(self):
+        r = self.rec()
+        r["dut"]["sources"] = ["verification/gate-level/sky130_fd_sc_hd_sim_defines.v"]
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("not listed in dut.sources" in e for e in errs), errs)
+
+    def test_escape_path_is_rejected_not_hashed(self):
+        r = self.rec()
+        r["dut"]["netlist"] = "../../etc/passwd"
+        r["dut"]["sources"].append("../../etc/passwd")
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("escapes the repo root" in e for e in errs), errs)
+
+    def test_non_string_netlist_or_sha_is_rejected(self):
+        r = self.rec()
+        r["dut"]["netlist_sha256"] = 12345
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("must both be strings" in e for e in errs), errs)
+
+    def test_sources_outside_the_repo_are_never_hashed(self):
+        # The PDK model paths in the fixture point outside the repo; only
+        # dut.netlist is hashed, so the fixture passes against the real root.
+        self.assertEqual(check(record()), [])
+
+    def test_schema1_gate_is_grandfathered_without_netlist_fields(self):
+        r = self.rec(schema=1)
+        del r["dut"]["netlist"]
+        del r["dut"]["netlist_sha256"]
+        self.assertEqual(check(r, repo_root=self.root), [])
+
+    def test_non_int_schema_spellings_still_require_the_fields(self):
+        for schema in ("2", 2.0, True):
+            r = self.rec(schema=schema)
+            del r["dut"]["netlist"]
+            del r["dut"]["netlist_sha256"]
+            errs = check(r, repo_root=self.root)
+            self.assertTrue(
+                any("missing dut.netlist" in e for e in errs), (schema, errs))
+
+    def test_rtl_record_with_no_netlist_fields_passes(self):
+        r = record(level="rtl")
+        del r["dut"]["netlist"]
+        del r["dut"]["netlist_sha256"]
+        self.assertEqual(check(r), [])
+
+    def test_netlist_error_precedes_ok_disagreement(self):
+        r = self.rec(ok=True)
+        r["dut"]["netlist_sha256"] = "0" * 64
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("does not match" in e for e in errs), errs)
+        self.assertTrue(any("'ok' field disagrees" in e for e in errs), errs)
+        self.assertLess(
+            next(i for i, e in enumerate(errs) if "does not match" in e),
             next(i for i, e in enumerate(errs) if "'ok' field disagrees" in e),
         )
 

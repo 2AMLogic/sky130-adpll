@@ -24,7 +24,7 @@ behaves identically on the synthesized netlist.
 | iverilog | Icarus Verilog version 13.0 (stable) (v13_0) |
 | cocotb | 1.9.2 |
 | python | 3.13.16 |
-| commit | `6f9c8cb71bab43d3f810b0fd9260d4e998d7652d` (dirty: false) |
+| commit | `2e9b5ec75470a959aabac40780ecac482e0b7f4a` (dirty: false) |
 | level | `gate` |
 
 | test | expected | observed | verdict |
@@ -32,7 +32,8 @@ behaves identically on the synthesized netlist.
 | `test_integrates_and_locks` | PASS | pass | ok |
 | `negative_control` | FAIL | fail | ok |
 
-The netlist sha256 above is the artifact this record grades. If it no longer
-matches `netlist_sha256` in `flow/adpll/records/synthesize-output.json`, the
-netlist has been regenerated since and this record describes an artifact that
-is no longer in the tree -- re-run the script.
+The netlist sha256 above is recorded in
+`result-gate.json` as `dut.netlist_sha256`;
+`check_records.py` re-derives the sha256 of that file in the tree and fails
+the record if it no longer matches or the file is gone -- staleness is a
+failure, not a manual comparison.

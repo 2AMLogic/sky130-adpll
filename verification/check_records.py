@@ -8,20 +8,26 @@ Checks schema, that tool versions and the commit are present, that the
 smoke tests passed, and that every expected-fail test (the negative
 control) actually failed. A gate-level record at any schema other than
 the grandfathered int 1 must also state the cell-model arm the compile
-selected and it must be the functional one; schema-1 records are
+selected and it must be the functional one, and must name the netlist it
+graded (dut.netlist + dut.netlist_sha256): the sha256 is re-derived from
+the committed file and any mismatch -- including a netlist that no longer
+exists in the tree -- is a failure, never a skip. Schema-1 records are
 grandfathered. Exit 0 pass, 1 invalid.
 """
 
+import hashlib
 import json
 import re
 import sys
 from pathlib import Path
 
-DEFAULT_DIR = Path(__file__).resolve().parent.parent / "sim/build/verification"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_DIR = REPO_ROOT / "sim/build/verification"
 TOOLS = ("iverilog", "verilator", "cocotb", "python")
 
 
-def check(rec):
+def check(rec, repo_root=None):
+    """repo_root defaults to this checkout; tests inject a throwaway tree."""
     errs = []
     for k in ("schema", "timestamp", "commit", "level", "dut", "seed", "tools", "tests", "ok"):
         if k not in rec:
@@ -75,9 +81,58 @@ def check(rec):
                 f"(method.cell_model_arm: {arm!r}); the result carries the "
                 "models' built-in typ delays -- an unstated timing claim"
             )
+        _check_netlist(rec, errs, repo_root)
     if rec["ok"] is not (not errs):
         errs.append("'ok' field disagrees with the checked contents")
     return errs
+
+
+def _check_netlist(rec, errs, repo_root):
+    """A non-grandfathered gate record must name the netlist it graded, and
+    the named file must still be in the tree with that sha256. Fail closed
+    on every degenerate case -- a missing field, a path outside the repo,
+    a file that no longer exists: #92 was a record on main naming a netlist
+    that no longer existed, and nothing failed."""
+    dut = rec["dut"]
+    if not isinstance(dut, dict):
+        errs.append("gate-level record (non-grandfathered schema): 'dut' is not an object")
+        return
+    netlist = dut.get("netlist")
+    sha = dut.get("netlist_sha256")
+    if netlist is None:
+        errs.append("gate-level record (non-grandfathered schema) missing dut.netlist")
+    if sha is None:
+        errs.append("gate-level record (non-grandfathered schema) missing dut.netlist_sha256")
+    if netlist is None or sha is None:
+        return
+    if not isinstance(netlist, str) or not isinstance(sha, str):
+        errs.append(
+            f"dut.netlist and dut.netlist_sha256 must both be strings: "
+            f"{netlist!r} / {sha!r}"
+        )
+        return
+    sources = dut.get("sources")
+    if not isinstance(sources, list) or netlist not in sources:
+        errs.append(f"dut.netlist {netlist!r} is not listed in dut.sources")
+        return
+    root = Path(repo_root) if repo_root is not None else REPO_ROOT
+    path = (root / netlist).resolve()
+    if not path.is_relative_to(root.resolve()):
+        errs.append(f"dut.netlist {netlist!r} escapes the repo root; refusing to hash it")
+        return
+    if not path.is_file():
+        errs.append(
+            f"dut.netlist {netlist!r} is not in the tree: the record names a "
+            "netlist that no longer exists"
+        )
+        return
+    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual != sha:
+        errs.append(
+            f"dut.netlist_sha256 {sha} does not match {netlist} "
+            f"(actual sha256 {actual}): the netlist was regenerated since "
+            "the record was written"
+        )
 
 
 def check_file(path):
