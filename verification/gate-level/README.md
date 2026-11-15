@@ -25,7 +25,7 @@ without one):
 |---|---|
 | what | pre-layout, **zero-delay functional** simulation of the synthesized netlist |
 | what it is not | not a timing result — **no SDF**, no static timing, no frequency/delay/jitter claim |
-| netlist | `flow/adpll/records/adpll_top_synth.v`, sha256 `9a9a836f646883beac3e6477e76b98dbf567b960a51cd74cf2ee8f7b60418dea` |
+| netlist | `flow/adpll/records/adpll_top_synth.v`, sha256 `7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd` |
 | cell models | `$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/{primitives,sky130_fd_sc_hd}.v` |
 | open_pdks | `f6eeac7dad08` (the `CIEL_SKY130_VERSION` pin in `scripts/setup-env.sh`) |
 | sim defines | `FUNCTIONAL` and `UNIT_DELAY` (empty replacement → zero delay); `USE_POWER_PINS` **not** defined |
