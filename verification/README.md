@@ -46,8 +46,10 @@ runner reports a failure: a harness that cannot fail proves nothing.
 
 ## Tool versions
 
-Python deps are pinned in `requirements.txt`. `scripts/setup-env.sh` pins
-`klt`, Yosys and the sky130A PDK (open_pdks `f6eeac7d…`); `iverilog` and
+Python deps are pinned in `requirements.txt` — the pin of record for cocotb;
+`scripts/setup-env.sh` installs from it (`-r verification/requirements.txt`)
+rather than pinning in parallel. That script additionally pins `klt`, Yosys
+and the sky130A PDK (open_pdks `f6eeac7d…`); `iverilog` and
 `verilator` still come from the host, and their versions are read from each
 tool's own `--version` output into every record. The T1 item 9 inventory
 (`../manifests/item9.inventory.json`) pins the PDK revision and the tool
