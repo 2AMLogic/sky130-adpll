@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "timestamp": "2026-11-15T16:12:47+00:00",
-  "commit": "6f9c8cb71bab43d3f810b0fd9260d4e998d7652d",
+  "timestamp": "2026-11-15T22:59:07+00:00",
+  "commit": "2e9b5ec75470a959aabac40780ecac482e0b7f4a",
   "dirty": false,
   "level": "gate",
   "dut": {
@@ -11,12 +11,14 @@
       "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
       "flow/adpll/records/adpll_top_synth.v"
     ],
-    "toplevel": "adpll_top"
+    "toplevel": "adpll_top",
+    "netlist": "flow/adpll/records/adpll_top_synth.v",
+    "netlist_sha256": "7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd"
   },
   "seed": 12345,
   "tools": {
     "iverilog": "Icarus Verilog version 13.0 (stable) (v13_0)",
-    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20261014",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20261005",
     "cocotb": "1.9.2",
     "python": "3.13.16"
   },
