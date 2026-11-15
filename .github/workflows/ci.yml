@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Stdlib-only, no simulator and no venv: placed before the toolchain
+      # installs so a gating regression fails in seconds, not after setup.
+      - name: Runner CLI gating self-test
+        run: python3 verification/selftest_run_tests.py
+
       - name: Install simulation and lint tools
         run: |
           sudo apt-get update
