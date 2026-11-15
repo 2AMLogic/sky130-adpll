@@ -103,13 +103,30 @@ def simulate(args, build_dir, testcase, seed):
     from cocotb.runner import get_runner
 
     runner = get_runner("icarus")
-    runner.build(
-        sources=[Path(s).resolve() for s in args.sources],
-        hdl_toplevel=args.toplevel,
-        build_dir=build_dir,
-        always=True,
-        log_file=build_dir / COMPILE_LOG,
-    )
+    try:
+        runner.build(
+            sources=[Path(s).resolve() for s in args.sources],
+            hdl_toplevel=args.toplevel,
+            build_dir=build_dir,
+            always=True,
+            log_file=build_dir / COMPILE_LOG,
+        )
+    except SystemExit:
+        # cocotb redirects the compile's stdout AND stderr into the log, so
+        # iverilog's own diagnostic never reaches the console; echo it, name
+        # the log (CI archives only the JSON records, not the log), then
+        # re-raise so the exit status is unchanged. SystemExit, not
+        # Exception: cocotb raises SystemExit, which derives directly from
+        # BaseException. The log may not exist at all -- the same exception
+        # is raised for a missing iverilog executable, before any log is
+        # written.
+        log = build_dir / COMPILE_LOG
+        print(f"run_tests: iverilog could not compile the source list "
+              f"(compile log: {log}):", file=sys.stderr)
+        if log.exists():
+            for line in log.read_text(errors="replace").splitlines():
+                print(f"    {line}", file=sys.stderr)
+        raise
     xml = build_dir / f"results_{testcase}.xml"
     marker = build_dir / "control_assertion.marker"
     marker.unlink(missing_ok=True)
