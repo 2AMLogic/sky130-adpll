@@ -8,7 +8,7 @@ its own `negative_control` and writes `sim/build/verification/<suite>.json`.
 
 ## Cold start
 
-From a fresh clone (needs `iverilog`, `verilator`, `yosys`, `uv` on `PATH`; a
+From a fresh clone (needs `iverilog`, `verilator`, `uv` on `PATH`; a
 missing tool is an error, not a skip):
 
 ```bash
