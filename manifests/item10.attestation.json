@@ -3,14 +3,14 @@
   "kind": "generic",
   "status": "pass",
   "t1_item": 10,
-  "summary": "T1 item 10 (Repo hygiene): 8/8 attestation checks passed (klt signoff --attest)",
+  "summary": "T1 item 10 (Repo hygiene): 9/9 attestation checks passed (klt signoff --attest)",
   "source": "manifests/item10.inventory.json",
   "attestation": {
     "producer": "klt signoff --attest",
     "inventory_schema_version": 1,
     "hash_algorithm": "sha256-raw-bytes",
-    "check_count": 8,
-    "passed_count": 8,
+    "check_count": 9,
+    "passed_count": 9,
     "checks": [
       {
         "check": "present",
@@ -57,6 +57,13 @@
       {
         "check": "present",
         "role": "hygiene",
+        "path": "reuse.lock.json",
+        "passed": true,
+        "content_hash": "sha256:e938a3a7e0bfc8722169f9c9058f4aeb6b05358ba8f53fcf3a75f5da50f6ee4c"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
         "path": "scripts/lint-rtl.sh",
         "passed": true,
         "content_hash": "sha256:f4b64bd794d27e2a11a6649335b64ce9cedd83cc8ce2e6e02306b96ef2a55ccf"
@@ -86,7 +93,7 @@
         "path": "manifests/item10.inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:c20154701a968f5feac10c9ec350ed4c09a813bf709a4c6f5c05cab8c922f4d4"
+      "content_hash": "sha256:0edcb9fe5008396de95cc551e0ec42804a33095dad0b34d0174ddee73704d4b9"
     }
   }
 }
