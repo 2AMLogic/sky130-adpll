@@ -38,7 +38,7 @@
         "role": "testbench",
         "path": "verification/run_tests.py",
         "passed": true,
-        "content_hash": "sha256:4f5aef5c469b6eb3fcea651f7dd548f68d63e69fc3708b3e674f010b1fe48230"
+        "content_hash": "sha256:241182cefe0781e27a43c2f58c0e87defe2ec150519b102aaea380f7163ef3b2"
       },
       {
         "check": "present",
