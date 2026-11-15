@@ -55,7 +55,6 @@ def tool_versions():
     specs = {
         "iverilog": ["iverilog", "-V"],
         "verilator": ["verilator", "--version"],
-        "yosys": ["yosys", "-V"],
     }
     out = {}
     for name, cmd in specs.items():
