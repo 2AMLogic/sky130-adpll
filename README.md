@@ -8,7 +8,14 @@ driving [klayout-tools](https://github.com/2AMLogic/klayout-tools),
 cocotb + Icarus and Yosys/OpenROAD on the digital side, and ngspice for the
 timing-critical cells.
 
-**Status: just opened, specification phase.** Nothing is designed yet.
+**Status: spec Proposed (not ratified), design under way.** The digital RTL —
+loop filter, divider, lock detect, DCO code path, top level — is written and
+verified at the RTL level with cocotb suites, and a pre-layout synthesized
+gate-level netlist of the top level is recorded under `flow/adpll/records/`.
+There is no phase detector yet: its choice (TDC vs bang-bang) waits on
+decision record `0002`, so the loop is open at the PD boundary. There is no
+layout. Nothing here is a measurement; every number in the target table below
+is a target, not a result.
 
 **Built agent-native.** Every specification, decision record, testbench, and
 line of documentation here is produced by AI agents working from a ratified
@@ -64,7 +71,9 @@ somewhere a purely digital or purely analog block does not.
 Maturity ladder: spec ratified → loop modelled and RTL verified → DCO and
 TDC characterized post-layout → full loop simulated post-layout across PVT →
 layout DRC/LVS-clean → shuttle seat → measured silicon. **Current position:
-pre-spec.**
+before the first rung — spec Proposed (not ratified); RTL verified at the RTL
+level; top-level netlist synthesized pre-layout; no post-layout
+characterization yet.**
 
 ## Cold start
 
@@ -78,13 +87,16 @@ commit: `flow/smoke/records/environment.json`. Vendored scripts: `reuse.lock.jso
 ## Repo layout
 
 ```
-spec/          ratified spec + decision records
+spec/          target spec + decision records (Proposed, not ratified)
 rtl/           loop filter, divider, control, and DCO/TDC structural RTL
 design/        cell-level netlists for the DCO and TDC characterization
+flow/          digital flow: smoke checks + synthesized netlist records
 sim/           SPICE testbenches + PVT corner results (ngspice)
 verification/  cocotb testbenches + behavioural loop model
-layout/        GDS + DRC/LVS reports (klayout-tools driven)
+layout/        GDS + DRC/LVS reports (klayout-tools driven; empty)
 measurements/  silicon characterization (empty until tape-out)
+manifests/     evidence chain: inventories, attestations, signoff records
+scripts/       environment setup, lint, and flow helpers
 ```
 
 ## License
