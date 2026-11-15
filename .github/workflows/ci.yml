@@ -14,9 +14,9 @@ jobs:
       - name: Install simulation and lint tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends iverilog verilator yosys
+          sudo apt-get install -y --no-install-recommends iverilog verilator
           # A missing tool must fail the job, never skip a step.
-          for t in iverilog verilator yosys; do command -v "$t"; done
+          for t in iverilog verilator; do command -v "$t"; done
 
       - name: Install Python deps
         run: |

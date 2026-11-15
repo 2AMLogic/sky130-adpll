@@ -8,7 +8,7 @@ its own `negative_control` and writes `sim/build/verification/<suite>.json`.
 
 ## Cold start
 
-From a fresh clone (needs `iverilog`, `verilator`, `yosys`, `uv` on `PATH`; a
+From a fresh clone (needs `iverilog`, `verilator`, `uv` on `PATH`; a
 missing tool is an error, not a skip):
 
 ```bash
@@ -35,7 +35,7 @@ every record in that directory, and CI uploads them as the
 | `check_records.py` | validates a record (versions present, control failed on an assertion) |
 | `requirements.txt` | pinned Python deps |
 | `test_<block>.py` | per-block cocotb tests (loop filter, divider, lock detect, DCO code, top) |
-| `gate-level/` | slot for re-running the same tests on a netlist |
+| `gate-level/` | re-runs `test_top` on the synthesized netlist (`run-gate-level.sh`, sim defines, committed record); pre-layout zero-delay functional, no SDF |
 | `../scripts/lint-rtl.sh` | `verilator --lint-only -Wall` over `rtl/`; prints "vacuous pass" only if `rtl/` is empty |
 
 ## Negative control
@@ -46,8 +46,10 @@ runner reports a failure: a harness that cannot fail proves nothing.
 
 ## Tool versions
 
-Python deps are pinned in `requirements.txt`. `scripts/setup-env.sh` pins
-`klt`, Yosys and the sky130A PDK (open_pdks `f6eeac7d…`); `iverilog` and
+Python deps are pinned in `requirements.txt` — the pin of record for cocotb;
+`scripts/setup-env.sh` installs from it (`-r verification/requirements.txt`)
+rather than pinning in parallel. That script additionally pins `klt`, Yosys
+and the sky130A PDK (open_pdks `f6eeac7d…`); `iverilog` and
 `verilator` still come from the host, and their versions are read from each
 tool's own `--version` output into every record. The T1 item 9 inventory
 (`../manifests/item9.inventory.json`) pins the PDK revision and the tool

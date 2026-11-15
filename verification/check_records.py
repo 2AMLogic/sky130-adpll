@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 DEFAULT_DIR = Path(__file__).resolve().parent.parent / "sim/build/verification"
-TOOLS = ("iverilog", "verilator", "yosys", "cocotb", "python")
+TOOLS = ("iverilog", "verilator", "cocotb", "python")
 
 
 def check(rec):

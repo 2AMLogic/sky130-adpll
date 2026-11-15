@@ -21,6 +21,7 @@ _None._
 
 - **#2**: Draft and ratify the target spec
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
+- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md
 
 ## Ready
 
@@ -33,18 +34,26 @@ _None._
 Issues currently being built (`loom:building`).
 
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
+- **#74**: Drop yosys from the verification tool gate: the RTL/gate-level leg never invokes it
+- **#76**: Item-10 attests ci.yml but not scripts/lint-rtl.sh, the script it invokes
+- **#81**: setup-env.sh resolves its own unpinned cocotb into the harness venv: consolidate on the requirements.txt pin
+- **#82**: reuse.lock.json attests a sha256 scripts/setup-env.sh no longer has, and nothing checks it
+- **#88**: README: two residual claim-vs-reality drifts after #67 ("ratified spec", rtl/ TDC)
 
 ## PRs Awaiting Review
 
 PRs waiting on Judge (`loom:review-requested`).
 
 - **#21**: ratification: install ee-key and market-key reviewer trees
+- **#97**: fix(setup-env): install cocotb via verification/requirements.txt, not an unpinned resolve
+- **#99**: docs: correct spec-ratification and TDC claims in README layout fence
 
 ## Approved (Awaiting Merge)
 
 PRs that passed review and are queued for Champion auto-merge (`loom:pr`).
 
-_None._
+- **#94**: manifests: attest scripts/lint-rtl.sh in item 10 hygiene inventory
+- **#95**: chore: drop yosys from the verification tool gate
 
 ## Proposed
 
@@ -54,6 +63,14 @@ Issues carrying `loom:curated`.
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
 - **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)*
 - **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)*
+- **#74**: Drop yosys from the verification tool gate: the RTL/gate-level leg never invokes it *(curated)*
+- **#76**: Item-10 attests ci.yml but not scripts/lint-rtl.sh, the script it invokes *(curated)*
+- **#81**: setup-env.sh resolves its own unpinned cocotb into the harness venv: consolidate on the requirements.txt pin *(curated)*
+- **#88**: README: two residual claim-vs-reality drifts after #67 ("ratified spec", rtl/ TDC) *(curated)*
+- **#90**: No automated coverage for run_tests.py's own CLI gating: the --record guard can regress silently *(curated)*
+- **#91**: setup-env.sh --help truncates the last line of its own header block (pre-existing off-by-one in the sed range) *(curated)*
+- **#92**: Gate-level record will name a netlist sha256 that no longer exists once #80 and #77 both land *(curated)*
+- **#96**: environment.json freshness drift: klt_pinned_synth_par still records 0.6.0 while setup-env.sh pins 0.8.0, and recorded_on has no partial-refresh convention *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -69,12 +86,12 @@ _None._
 |------|-------|
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
-| Important | 2 |
+| Important | 3 |
 | Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 1 |
-| PRs awaiting review | 1 |
-| Approved PRs awaiting merge | 0 |
-| Curated | 4 |
+| In Progress (`loom:building`) | 6 |
+| PRs awaiting review | 3 |
+| Approved PRs awaiting merge | 2 |
+| Curated | 12 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->

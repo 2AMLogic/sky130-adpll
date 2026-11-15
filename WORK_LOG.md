@@ -2,6 +2,29 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-15
+
+- **PR #89**: fix(setup-env): probe verilator in the toolchain check and correct the step-4 gate advisory
+- **PR #87**: docs: state the actual design status in the READMEs
+- **PR #86**: fix: reject --record with multi-suite registry run in run_tests.py
+- **PR #80**: rtl: make loop-filter saturation bounds localparams, dropping 64 tie cells
+- **PR #77**: feat(verification): run test_top on the synthesized netlist, with a cell-model-arm guard
+- **Issue #85** (closed): setup-env.sh certifies a clean toolchain on a host that cannot run the gates it recommends: verilator unprobed, plus two dead references
+- **Issue #73** (closed): run_tests.py --record silently collapses five suite records into one: reject the combination it cannot express
+- **Issue #70** (closed): Gate-level re-run slot is still documentation only: run the top suite on the synthesized ADPLL netlist
+- **Issue #69** (closed): Loop filter synthesizes 64 conb_1 tie cells for constants no logic reads: remove them and regenerate the netlist
+- **Issue #67** (closed): README status is stale: it says nothing is designed, while RTL, a synthesized netlist and 3 of 11 T1 items are on main
+
+### 2026-11-14
+
+- **PR #84**: ci: upload the per-suite verification records instead of a path that matches nothing
+- **PR #78**: refactor: drop unused to_signed, trigger re-exports and __all__ from test helpers
+- **PR #75**: chore: attest .github/workflows/ci.yml in the item-10 hygiene inventory
+- **PR #66**: docs: roadmap as of 2026-11-13
+- **Issue #72** (closed): Remove dead export surface in verification/_common.py: to_signed and the unused trigger re-exports
+- **Issue #71** (closed): CI's verification-result artifact uploads nothing: the upload path matches no record the multi-suite runner writes
+- **Issue #68** (closed): Item-10 inventory predates the verification CI job: add ci.yml and regenerate the attestation
+
 ### 2026-11-12
 
 - **PR #61**: Bump Repo Skills 0.25.10 -> 0.26.1

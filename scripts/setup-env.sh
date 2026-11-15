@@ -13,13 +13,14 @@
 #      `${PDK_ROOT:-$HOME/.ciel}` and verifies the installed tree's open_pdks
 #      revision (its `SOURCES` file) matches the pin.
 #   4. Reports -- with an actionable message, never a Python traceback --
-#      which of `iverilog`, `openroad` are missing from `$PATH`.
+#      which of `iverilog`, `verilator`, `openroad` are missing from `$PATH`.
 #
 # Exit codes:
-#   0  venv + klt + yosys + PDK provisioned. iverilog/openroad may still be
-#      individually reported missing (see step 4's summary) -- this is not
-#      itself a failure, since PDK-heavy legs (synthesis, P&R) are
-#      documented as locally-run-and-recorded, not a CI/setup requirement.
+#   0  venv + klt + yosys + PDK provisioned. iverilog/verilator/openroad may
+#      still be individually reported missing (see step 4's summary) -- this
+#      is not itself a failure: the gates that need them each report a
+#      missing tool as their own hard error when run (npm run lint needs
+#      verilator; npm run test needs iverilog, verilator and yosys).
 #      P&R specifically needs `openroad`; see the openroad fallback below.
 #   1  venv creation, klt install, pinned-yosys install/verification, or PDK
 #      fetch failed.
@@ -68,7 +69,7 @@ for arg in "$@"; do
       PDK_ROOT="${arg#--pdk-root=}"
       ;;
     -h|--help)
-      sed -n '2,31p' "${BASH_SOURCE[0]}"
+      sed -n '2,32p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)
@@ -81,10 +82,12 @@ done
 status=0
 
 echo "== 1/4 python venv =="
-# cocotb 2.0.1 (pinned by klt) refuses to build on Python > 3.13 with a
-# RuntimeError, not a graceful skip -- pick a compatible interpreter up
-# front so that failure surfaces here, as an actionable message, rather
-# than as a pip build-backend traceback in step 2.
+# cocotb is pinned by verification/requirements.txt (cocotb==1.9.2), which
+# this script installs via -r in step 2 -- that pin publishes wheels only
+# through cp313, so on Python 3.14+ pip would fall back to a source build.
+# Pick a compatible interpreter up front so that failure surfaces here, as
+# an actionable message, rather than as a pip build-backend traceback in
+# step 2.
 PYTHON_BIN=""
 for candidate in python3.13 python3.12 python3.11 python3.10 python3; do
   found="$(command -v "${candidate}" || true)"
@@ -102,8 +105,8 @@ done
 
 if [ -z "${PYTHON_BIN}" ]; then
   echo "FATAL: no Python <= 3.13 interpreter found on \$PATH."
-  echo "  cocotb 2.0.1 (the version klt/verification/cross_check.py pin)"
-  echo "  refuses to build on Python 3.14+."
+  echo "  cocotb 1.9.2 (pinned by verification/requirements.txt) publishes"
+  echo "  no wheel for Python 3.14+."
   echo "  -> install a compatible interpreter, e.g.:"
   echo "       brew install python@3.13   (macOS/Homebrew)"
   echo "       uv python install 3.13     (if 'uv' is available)"
@@ -149,14 +152,16 @@ if ! "${VENV_PIP}" install --quiet --upgrade pip; then
 fi
 
 if ! "${VENV_PIP}" install --quiet \
-    "klayout-tools==${KLT_VERSION}" cocotb "ciel==${CIEL_VERSION}"; then
-  echo "FATAL: failed to install klayout-tools/cocotb/ciel into ${VENV_DIR}."
+    "klayout-tools==${KLT_VERSION}" "ciel==${CIEL_VERSION}" \
+    -r "${REPO_ROOT}/verification/requirements.txt"; then
+  echo "FATAL: failed to install klayout-tools/ciel/verification/requirements.txt"
+  echo "  (cocotb harness pin included) into ${VENV_DIR}."
   echo "  -> common causes: no network access to PyPI, or no C/C++"
   echo "     toolchain for a dependency's native build (install Xcode CLI"
   echo "     tools on macOS: 'xcode-select --install'; build-essential on"
   echo "     Debian/Ubuntu)."
   echo "  -> re-run with the venv's own pip for a full traceback:"
-  echo "       ${VENV_PIP} install \"klayout-tools==${KLT_VERSION}\" cocotb ciel==${CIEL_VERSION}"
+  echo "       ${VENV_PIP} install \"klayout-tools==${KLT_VERSION}\" ciel==${CIEL_VERSION} -r verification/requirements.txt"
   exit 1
 fi
 INSTALLED_KLT_VERSION="$("${VENV_PY}" -m klayout_tools.cli --version 2>/dev/null || true)"
@@ -283,7 +288,7 @@ else
 fi
 
 echo
-echo "== toolchain check (iverilog / openroad) =="
+echo "== toolchain check (iverilog / verilator / openroad) =="
 # yosys is NOT probed here: step 3 provisions it into the venv at a pinned,
 # digest-verified build. A host `yosys` on $PATH is not that build (issue
 # #143), so "some yosys resolves" is not the property this check should
@@ -294,6 +299,12 @@ if command -v iverilog >/dev/null 2>&1; then
   echo "  iverilog: $(iverilog -V 2>&1 | head -1)"
 else
   missing+=("iverilog")
+fi
+
+if command -v verilator >/dev/null 2>&1; then
+  echo "  verilator: $(verilator --version 2>&1 | head -1)"
+else
+  missing+=("verilator")
 fi
 
 # openroad: prefer a native install already on $PATH. Otherwise, openroad has
@@ -325,7 +336,14 @@ if [ "${#missing[@]}" -gt 0 ]; then
       iverilog)
         echo "  - iverilog (Icarus Verilog): 'brew install icarus-verilog' (macOS)"
         echo "    or 'apt-get install iverilog' (Debian/Ubuntu). Required for"
-        echo "    'klt functional-verification' and verification/cross_check.py."
+        echo "    'klt functional-verification' and verification/run_tests.py"
+        echo "    (npm run test)."
+        ;;
+      verilator)
+        echo "  - verilator: 'brew install verilator' (macOS) or"
+        echo "    'apt-get install verilator' (Debian/Ubuntu). Required for"
+        echo "    scripts/lint-rtl.sh (npm run lint) and"
+        echo "    verification/run_tests.py (npm run test)."
         ;;
       openroad)
         echo "  - openroad: no package-manager formula on macOS or common Linux"
@@ -340,14 +358,18 @@ if [ "${#missing[@]}" -gt 0 ]; then
     esac
   done
   echo
-  echo "This is expected and non-fatal for this script: the cross-check and"
-  echo "record linter (npm run test / npm run lint) need only iverilog and"
-  echo "python3+git. synthesis needs the pinned yosys above (already"
-  echo "provisioned); place-and-route additionally needs openroad -- see"
-  echo "verification/README.md's CI-split section for which legs run where."
+  echo "This is expected and non-fatal for this script: each verification"
+  echo "gate reports a missing tool as its own hard error when you run it."
+  echo "npm run lint needs verilator; npm run test needs iverilog,"
+  echo "verilator and yosys; npm run check:records needs only python3."
+  echo "synthesis uses the pinned yosys above (already provisioned);"
+  echo "place-and-route additionally needs openroad -- see the 'Cold"
+  echo "start' and 'T1 item 9' sections of verification/README.md for"
+  echo "which legs run where."
 else
-  echo "all of iverilog/yosys/openroad resolve (yosys from the pin above,"
-  echo "  iverilog natively, openroad natively or via the pinned Docker route)."
+  echo "all of iverilog/verilator/yosys/openroad resolve (yosys from the"
+  echo "  pin above, iverilog and verilator natively, openroad natively or"
+  echo "  via the pinned Docker route)."
 fi
 
 echo
