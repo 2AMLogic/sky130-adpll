@@ -82,10 +82,12 @@ done
 status=0
 
 echo "== 1/4 python venv =="
-# cocotb 2.0.1 (pinned by klt) refuses to build on Python > 3.13 with a
-# RuntimeError, not a graceful skip -- pick a compatible interpreter up
-# front so that failure surfaces here, as an actionable message, rather
-# than as a pip build-backend traceback in step 2.
+# cocotb is pinned by verification/requirements.txt (cocotb==1.9.2), which
+# this script installs via -r in step 2 -- that pin publishes wheels only
+# through cp313, so on Python 3.14+ pip would fall back to a source build.
+# Pick a compatible interpreter up front so that failure surfaces here, as
+# an actionable message, rather than as a pip build-backend traceback in
+# step 2.
 PYTHON_BIN=""
 for candidate in python3.13 python3.12 python3.11 python3.10 python3; do
   found="$(command -v "${candidate}" || true)"
@@ -103,8 +105,8 @@ done
 
 if [ -z "${PYTHON_BIN}" ]; then
   echo "FATAL: no Python <= 3.13 interpreter found on \$PATH."
-  echo "  cocotb 2.0.1 (the version klt/verification/cross_check.py pin)"
-  echo "  refuses to build on Python 3.14+."
+  echo "  cocotb 1.9.2 (pinned by verification/requirements.txt) publishes"
+  echo "  no wheel for Python 3.14+."
   echo "  -> install a compatible interpreter, e.g.:"
   echo "       brew install python@3.13   (macOS/Homebrew)"
   echo "       uv python install 3.13     (if 'uv' is available)"
@@ -150,14 +152,16 @@ if ! "${VENV_PIP}" install --quiet --upgrade pip; then
 fi
 
 if ! "${VENV_PIP}" install --quiet \
-    "klayout-tools==${KLT_VERSION}" cocotb "ciel==${CIEL_VERSION}"; then
-  echo "FATAL: failed to install klayout-tools/cocotb/ciel into ${VENV_DIR}."
+    "klayout-tools==${KLT_VERSION}" "ciel==${CIEL_VERSION}" \
+    -r "${REPO_ROOT}/verification/requirements.txt"; then
+  echo "FATAL: failed to install klayout-tools/ciel/verification/requirements.txt"
+  echo "  (cocotb harness pin included) into ${VENV_DIR}."
   echo "  -> common causes: no network access to PyPI, or no C/C++"
   echo "     toolchain for a dependency's native build (install Xcode CLI"
   echo "     tools on macOS: 'xcode-select --install'; build-essential on"
   echo "     Debian/Ubuntu)."
   echo "  -> re-run with the venv's own pip for a full traceback:"
-  echo "       ${VENV_PIP} install \"klayout-tools==${KLT_VERSION}\" cocotb ciel==${CIEL_VERSION}"
+  echo "       ${VENV_PIP} install \"klayout-tools==${KLT_VERSION}\" ciel==${CIEL_VERSION} -r verification/requirements.txt"
   exit 1
 fi
 INSTALLED_KLT_VERSION="$("${VENV_PY}" -m klayout_tools.cli --version 2>/dev/null || true)"
