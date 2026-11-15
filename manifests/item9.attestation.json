@@ -31,14 +31,14 @@
         "role": "testbench",
         "path": "verification/check_records.py",
         "passed": true,
-        "content_hash": "sha256:27d572371a4a3b51a05453ad4df19da1f51f7bbf08884f813d46d0327a8c30ff"
+        "content_hash": "sha256:9df2dfeac5ed78c3cc2b817d6c02f24005830d4d5a5cb8d3590229e23bfd72e0"
       },
       {
         "check": "present",
         "role": "testbench",
         "path": "verification/run_tests.py",
         "passed": true,
-        "content_hash": "sha256:241182cefe0781e27a43c2f58c0e87defe2ec150519b102aaea380f7163ef3b2"
+        "content_hash": "sha256:2841d3f3eeb64ccefbb5565f0fc3c9f8fafc44bbe8ed40446d8e7282a711a75e"
       },
       {
         "check": "present",
@@ -73,7 +73,7 @@
         "role": "testbench",
         "path": "verification/test_record_schema.py",
         "passed": true,
-        "content_hash": "sha256:d1eec819c931acee3c91550d7dc24200a96564082a19f4798116c2f1a72a43ce"
+        "content_hash": "sha256:c7f79368666071d1e6f71c665933ed553ab788643bc7ded546f75f66e130ae21"
       },
       {
         "check": "present",
