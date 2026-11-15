@@ -4,6 +4,20 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #109**: fix: fail run_tests when a gated tool exits non-zero instead of recording its stderr as a version
+- **PR #106**: fix: derive setup-env.sh --help header from the block itself
+- **PR #101**: feat: record the cell-model arm in result records, enforce it for gate level
+- **PR #99**: docs: correct spec-ratification and TDC claims in README layout fence
+- **PR #97**: fix(setup-env): install cocotb via verification/requirements.txt, not an unpinned resolve
+- **PR #94**: manifests: attest scripts/lint-rtl.sh in item 10 hygiene inventory
+- **PR #93**: ci: check reuse.lock.json hashes against committed content
+- **Issue #98** (closed): tool_versions() records a failing tool's stderr as its version string, and check_records.py certifies it
+- **Issue #91** (closed): setup-env.sh --help truncates the last line of its own header block (pre-existing off-by-one in the sed range)
+- **Issue #88** (closed): README: two residual claim-vs-reality drifts after #67 ("ratified spec", rtl/ TDC)
+- **Issue #83** (closed): A wrong-method gate-level record still validates: check_records.py cannot see which cell-model arm produced it
+- **Issue #82** (closed): reuse.lock.json attests a sha256 scripts/setup-env.sh no longer has, and nothing checks it
+- **Issue #81** (closed): setup-env.sh resolves its own unpinned cocotb into the harness venv: consolidate on the requirements.txt pin
+- **Issue #76** (closed): Item-10 attests ci.yml but not scripts/lint-rtl.sh, the script it invokes
 - **PR #95**: chore: drop yosys from the verification tool gate
 - **PR #89**: fix(setup-env): probe verilator in the toolchain check and correct the step-4 gate advisory
 - **PR #87**: docs: state the actual design status in the READMEs
