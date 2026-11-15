@@ -25,7 +25,7 @@ without one):
 |---|---|
 | what | pre-layout, **zero-delay functional** simulation of the synthesized netlist |
 | what it is not | not a timing result — **no SDF**, no static timing, no frequency/delay/jitter claim |
-| netlist | `flow/adpll/records/adpll_top_synth.v`, sha256 `7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd` |
+| netlist | `flow/adpll/records/adpll_top_synth.v` — the sha256 it graded is recorded in `records/result-gate.json` (`dut.netlist_sha256`) and re-derived against the tree by `check_records.py` |
 | cell models | `$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/{primitives,sky130_fd_sc_hd}.v` |
 | open_pdks | `f6eeac7dad08` (the `CIEL_SKY130_VERSION` pin in `scripts/setup-env.sh`) |
 | sim defines | `FUNCTIONAL` and `UNIT_DELAY` (empty replacement → zero delay); `USE_POWER_PINS` **not** defined |
@@ -120,8 +120,11 @@ one test module:
 
 ## Staleness
 
-`records/result-gate.method.md` names the netlist sha256 the record graded. If
-it stops matching `netlist_sha256` in
-`flow/adpll/records/synthesize-output.json`, the netlist has been regenerated
-since (e.g. by #69, which removes the 64 `conb_1` tie cells) and the record
-describes an artifact no longer in the tree — re-run the script.
+`records/result-gate.json` names the netlist it graded (`dut.netlist`) and the
+sha256 it graded (`dut.netlist_sha256`, written by `run_tests.py --netlist`).
+`check_records.py` re-derives the sha256 of that file in the tree and **fails**
+the record on a mismatch, a missing field, or a file that is gone — so a
+regenerated netlist (e.g. by #69, which removes the 64 `conb_1` tie cells)
+invalidates the record loudly instead of silently. `npm run check:records` and
+CI both run that check against the committed record; re-run
+`run-gate-level.sh` to mint a fresh one.

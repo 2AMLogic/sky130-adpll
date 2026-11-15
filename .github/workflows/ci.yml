@@ -38,6 +38,15 @@ jobs:
       - name: Validate result record
         run: .venv/bin/python verification/check_records.py
 
+      - name: Validate committed gate-level record
+        # The no-arg step above validates only the freshly generated RTL
+        # records (sim/build/verification/*.json). The committed gate-level
+        # evidence pair is an artifact too: this runs the validator on it
+        # explicitly, so a regenerated netlist that orphans the record --
+        # including the committed record naming a netlist that no longer
+        # exists, which main once carried silently (#92) -- fails CI here.
+        run: .venv/bin/python verification/check_records.py verification/gate-level/records/result-gate.json
+
       - name: Record-schema unit tests
         run: .venv/bin/python -m unittest discover -s verification -p 'test_record_schema.py'
 

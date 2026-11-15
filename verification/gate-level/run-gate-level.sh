@@ -17,10 +17,13 @@
 #      RTL suite's own test module, test_top. run_tests.py itself captures the
 #      compile log, derives the cell-model arm from it, records the arm in the
 #      record and fails a gate-level run that selected the timing arm -- so
-#      this wrapper carries no duplicate of that check.
-#   4. Writes a companion method note beside the record naming the netlist
-#      sha256 that was graded, the defines, the PDK revision and the seed --
-#      fields the record schema does not carry.
+#      this wrapper carries no duplicate of that check. It also records the
+#      netlist's path and sha256 into the record (--netlist), which
+#      check_records.py re-derives against the tree.
+#   4. Writes a companion method note beside the record naming the defines
+#      and the PDK revision -- fields the record schema does not carry.
+#      (The netlist path and its sha256 moved into the record itself:
+#      the note reads them back from it rather than recomputing the hash.)
 #
 # Exit codes:
 #   0  smoke test passed, negative control failed on its assertion, record written
@@ -147,6 +150,7 @@ echo "== 3/3 cocotb run (test_top on the netlist, --level gate) =="
 RUN=("${PYTHON}" verification/run_tests.py
      --level gate
      --sources "${SOURCES[@]}"
+     --netlist "${NETLIST}"
      --toplevel "${TOPLEVEL}"
      --test-module "${TEST_MODULE}"
      --test-dir "${TEST_DIR}"
@@ -158,12 +162,13 @@ RUN=("${PYTHON}" verification/run_tests.py
   -> the record at ${RECORD} carries the detail; it is NOT evidence of a pass."
 
 # --- companion method note -------------------------------------------------
-# run_tests.py's record schema has no field for the defines, the PDK revision
-# or the netlist hash, so the method is not self-evident from the record alone.
-# Write it beside the record, generated from the same run.
-NETLIST_SHA="$(python3 -c 'import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest())' "${NETLIST}")"
-PINNED_PDK="${PINNED_PDK}" NETLIST_SHA="${NETLIST_SHA}" NETLIST="${NETLIST}" \
-DEFINES="${DEFINES}" RECORD="${RECORD}" NOTE="${NOTE}" \
+# The record now carries the netlist path and its sha256 (dut.netlist /
+# dut.netlist_sha256, written by run_tests.py --netlist and re-derived
+# against the tree by check_records.py). The note adds the two fields the
+# record still does not carry -- the sim defines and the PDK revision --
+# and reads the netlist rows back from the record: one hash computation,
+# one source of truth.
+PINNED_PDK="${PINNED_PDK}" DEFINES="${DEFINES}" RECORD="${RECORD}" NOTE="${NOTE}" \
 python3 - <<'PY' || die "could not write the companion method note."
 import json
 import os
@@ -189,8 +194,8 @@ behaves identically on the synthesized netlist.
 
 | | |
 |---|---|
-| netlist | `{os.environ['NETLIST']}` |
-| netlist sha256 | `{os.environ['NETLIST_SHA']}` |
+| netlist | `{rec['dut']['netlist']}` |
+| netlist sha256 | `{rec['dut']['netlist_sha256']}` |
 | cell models | `$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/{{primitives,sky130_fd_sc_hd}}.v` |
 | open_pdks revision | `{os.environ['PINNED_PDK']}` |
 | sim defines | `FUNCTIONAL`, `UNIT_DELAY` (empty = zero delay); `USE_POWER_PINS` undefined |
@@ -209,10 +214,11 @@ behaves identically on the synthesized netlist.
 |---|---|---|---|
 {tests}
 
-The netlist sha256 above is the artifact this record grades. If it no longer
-matches `netlist_sha256` in `flow/adpll/records/synthesize-output.json`, the
-netlist has been regenerated since and this record describes an artifact that
-is no longer in the tree -- re-run the script.
+The netlist sha256 above is recorded in
+`{os.path.basename(os.environ['RECORD'])}` as `dut.netlist_sha256`;
+`check_records.py` re-derives the sha256 of that file in the tree and fails
+the record if it no longer matches or the file is gone -- staleness is a
+failure, not a manual comparison.
 """)
 print(f"note:   {os.environ['NOTE']}")
 PY
