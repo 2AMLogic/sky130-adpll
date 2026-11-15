@@ -33,9 +33,12 @@ The committed record is the verdict of record; it is graded, not hand-read.
   simulated, none measured.
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
   the README, the licence, both CI workflows (`ci.yml`, `signoff.yml`), both
-  hygiene checkers (`check-signoff.sh`, `check-reuse-lock.sh`) and the RTL lint
-  script (`scripts/lint-rtl.sh`). The verification suite's own files are item
-  9's inventory, not this one.
+  hygiene checkers (`check-signoff.sh`, `check-reuse-lock.sh`), the RTL lint
+  script (`scripts/lint-rtl.sh`) and the sibling-reuse lock (`reuse.lock.json`).
+  Attesting the lock means any edit to it — dropping a pinned entry, stripping a
+  `sha256`, emptying `files[]` — fails `check-signoff.sh` until item 10 is
+  re-recorded in the same PR, so the lock cannot be hollowed silently. The
+  verification suite's own files are item 9's inventory, not this one.
 - `item10.attestation.json`: tool-produced envelope from
   `klt signoff --attest 10`. The grade rests on file presence plus one command
   check (no placeholder scripts in `package.json`); it does not show that every
@@ -55,7 +58,9 @@ The committed record is the verdict of record; it is graded, not hand-read.
   with no hashes (`mode: "referenced"`) are skipped. When a pinned script
   changes, re-record its hash in `reuse.lock.json` in the same PR
   (`git cat-file blob HEAD:<path> | sha256sum` after committing, or
-  `sha256sum <path>` in a clean checkout).
+  `sha256sum <path>` in a clean checkout). `reuse.lock.json` itself is attested
+  under item 10 (see `item10.inventory.json` above): a lock edit also requires
+  an item-10 re-record in the same PR.
 
 ## klt pin
 

@@ -12,7 +12,7 @@
     },
     "10": {
       "file": "manifests/item10.attestation.json",
-      "content_hash": "sha256:c20154701a968f5feac10c9ec350ed4c09a813bf709a4c6f5c05cab8c922f4d4"
+      "content_hash": "sha256:0edcb9fe5008396de95cc551e0ec42804a33095dad0b34d0174ddee73704d4b9"
     }
   }
 }
