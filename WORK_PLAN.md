@@ -27,14 +27,13 @@ _None._
 
 Human-approved issues ready for implementation (`loom:issue`).
 
-_None._
+- **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
 
 ## In Progress
 
 Issues currently being built (`loom:building`).
 
-- **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
-- **#114**: Nothing binds the gate-level record to the netlist it graded: the #92 drift can recur silently
+_None._
 
 ## PRs Awaiting Review
 
@@ -56,7 +55,6 @@ Issues carrying `loom:curated`.
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
 - **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)*
 - **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)*
-- **#114**: Nothing binds the gate-level record to the netlist it graded: the #92 drift can recur silently *(curated)*
 
 ## Proposed (Architect / Hermit)
 
@@ -73,11 +71,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
 | Important | 3 |
-| Ready (`loom:issue`) | 0 |
-| In Progress (`loom:building`) | 2 |
+| Ready (`loom:issue`) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 5 |
+| Curated | 4 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
