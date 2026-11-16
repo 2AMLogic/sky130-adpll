@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-15
 
+- **PR #118**: verification: record the graded netlist's sha256 and check it against the tree
+- **Issue #114** (closed): Nothing binds the gate-level record to the netlist it graded: the #92 drift can recur silently
 - **PR #115**: manifests: attest reuse.lock.json under T1 item 10
 - **PR #108**: test(verification): pin run_tests.py CLI gating with a stdlib self-test
 - **PR #112**: fix(verification): regrade gate-level record on the 515-instance netlist
