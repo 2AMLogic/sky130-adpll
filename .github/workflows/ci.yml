@@ -61,3 +61,79 @@ jobs:
           # A run that captured no record is not an empty artifact, it is a
           # missing one: fail instead of warning.
           if-no-files-found: error
+
+  # CI for the vendored Loom tooling this repo carries under .loom/.
+  # A resync PR (#123-style) currently gets a green badge from the design
+  # verification flow alone, which never exercises .loom/scripts/**; this
+  # job closes that gap (issue #124) with a narrow, hand-verified allowlist
+  # rather than running run-ci-suites.sh wholesale (untested cost and
+  # portability in a client repo, and a shared-runner budget to respect).
+  loom-tooling:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The path gate diffs the event's base sha against HEAD; the base
+          # can be arbitrarily far below HEAD, so a shallow clone cannot.
+          fetch-depth: 0
+
+      # Path gate, deliberately NOT workflow-level `on.paths`: a path-
+      # filtered event never schedules the job at all, so a required check
+      # would stay pending forever. Gating inside the job instead means a
+      # design-only PR skips the suite steps but the job itself still
+      # reports success (.loom/docs/ci-principles.md: path filtering is an
+      # optimisation, and a check that cannot run must never look like a
+      # pass).
+      - name: Detect changed vendored Loom tooling paths
+        id: paths
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          # A base we cannot diff against (empty or all-zero sha, e.g. a
+          # branch-creation push) must fail loudly, never silently skip the
+          # suites below.
+          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
+            echo "::error::base sha unavailable ('$BASE'); cannot diff .loom/ paths"
+            exit 1
+          fi
+          if [[ -n "$(git diff --name-only "$BASE" HEAD -- .loom/)" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Allowlist rationale. All three suites are black-box unit tests that
+      # stub `gh` on PATH and need only bash/jq/git from a stock runner; each
+      # was verified green by hand against THIS repo's vendored copy (issue
+      # #124: 86/86, 81/81, 165/165), which is the actual gap -- upstream CI
+      # tests the loom source tree, not what got vendored here.
+      #
+      # Why the two other `.loom/`-adjacent suites are NOT allowlisted:
+      #   - test-targeted-role-invocation.sh is "wired" upstream, but it
+      #     resolves paths under $REPO_ROOT/defaults/, which exists only in
+      #     the loom source repo -- a client repo's vendored .loom/ copy has
+      #     no defaults/, so the suite fails here regardless of code health.
+      #   - test-spawn-codex-session-exec.sh is excluded upstream for the
+      #     same reason this repo must honor: it needs a built loom-daemon
+      #     binary, and building one in this repo's CI is out of budget.
+      #
+      # The `env -u` unsets make the suites' environment deterministic: a
+      # self-hosted or reused runner that inherited Loom dispatch variables
+      # (LOOM_FORCE_SCOPE in particular changes guard-hook behavior) must
+      # not influence these results, and this matches how the suites were
+      # verified green by hand.
+      - name: sweep-lease-fence suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-sweep-lease-fence.sh
+
+      - name: sweep-lease-publish suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-sweep-lease-publish.sh
+
+      - name: sweep-lease-renew suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-sweep-lease-renew.sh
