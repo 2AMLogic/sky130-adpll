@@ -70,6 +70,11 @@ jobs:
   # portability in a client repo, and a shared-runner budget to respect).
   loom-tooling:
     runs-on: ubuntu-24.04
+    # The job only runs local test scripts and reads the checkout; the
+    # GITHUB_TOKEN needs nothing beyond read, so grant exactly that
+    # (CodeQL actions/job-or-workflow-missing-permissions).
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
