@@ -111,11 +111,27 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # Allowlist rationale. All three suites are black-box unit tests that
-      # stub `gh` on PATH and need only bash/jq/git from a stock runner; each
-      # was verified green by hand against THIS repo's vendored copy (issue
-      # #124: 86/86, 81/81, 165/165), which is the actual gap -- upstream CI
-      # tests the loom source tree, not what got vendored here.
+      # Allowlist rationale. All suites are black-box unit tests that stub
+      # `gh` on PATH and need only bash/jq/git from a stock runner; each was
+      # verified green by hand against THIS repo's vendored copy (issue
+      # #124: 86/86, 81/81, 165/165 lease suites; issue #126: the merge-pr
+      # and spawn-claude suites below, each run one process at a time from a
+      # clean checkout), which is the actual gap -- upstream CI tests the
+      # loom source tree, not what got vendored here.
+      #
+      # The added suites name-map to the executable scripts that actually
+      # churn in resync PRs (measured on #119/#123: merge-pr.sh,
+      # spawn-claude.sh, spawn-codex.sh); only suites already wired in
+      # upstream's ci-wired.txt were candidates, and only ones that pass
+      # here were added. Every other merge-pr/spawn-claude sibling suite is
+      # excluded upstream for needing a built loom-daemon binary, which this
+      # repo's CI deliberately does not build.
+      #
+      # Deliberately NOT covered (issue #126): the spawn-codex.sh family --
+      # every vendored suite exercising its daemon-dispatch behaviour
+      # (test-spawn-codex*.sh) requires a built loom-daemon, so no wired
+      # suite covers that script in a client repo. A resync diff touching
+      # spawn-codex.sh gets a green job that ran nothing over it.
       #
       # Why the two other `.loom/`-adjacent suites are NOT allowlisted:
       #   - test-targeted-role-invocation.sh is "wired" upstream, but it
@@ -142,3 +158,47 @@ jobs:
       - name: sweep-lease-renew suite
         if: steps.paths.outputs.changed == 'true'
         run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-sweep-lease-renew.sh
+
+      # Issue #126: wired merge-pr suites covering the merge-pr.sh churn that
+      # resync PRs (#119) actually carry. All verified green here by hand.
+      - name: merge-pr app-permission-fallback suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-app-permission-fallback.sh
+
+      - name: merge-pr daemon-version-floor suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-daemon-version-floor.sh
+
+      - name: merge-pr expected-head suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-expected-head.sh
+
+      - name: merge-pr pr-state suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-pr-state.sh
+
+      - name: merge-pr required-checks suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-required-checks.sh
+
+      - name: merge-pr stacked-child-branch-delete suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-stacked-child-branch-delete.sh
+
+      - name: merge-pr tree-checks suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-merge-pr-tree-checks.sh
+
+      # Issue #126: wired spawn-claude suites covering the spawn-claude.sh
+      # churn that resync PRs carry. All verified green here by hand.
+      - name: spawn-claude container-gh suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-spawn-claude-container-gh.sh
+
+      - name: spawn-claude memory-max suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-spawn-claude-memory-max.sh
+
+      - name: spawn-claude oom-policy suite
+        if: steps.paths.outputs.changed == 'true'
+        run: env -u LOOM_ROLE -u LOOM_FORCE_SCOPE -u LOOM_GUARD_DECISION_LOG bash .loom/scripts/tests/test-spawn-claude-oom-policy.sh
