@@ -2,6 +2,15 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-17
+
+- **PR #127**: ci: widen loom-tooling allowlist with wired merge-pr/spawn-claude suites
+- **PR #125**: ci: add loom-tooling job gating vendored Loom suites on .loom/ paths
+- **PR #123**: chore(loom): resync installed Loom to v0.19.1306
+- **Issue #128** (closed): loom-tooling's path gate skips the suites on the very PR that edits the allowlist
+- **Issue #126** (closed): loom-tooling job runs 3 of 334 vendored suites, so a .loom/ diff outside the lease scripts still gets a green that covers nothing
+- **Issue #124** (closed): CI gives no signal on .loom/** tooling changes, so resync PRs show a green badge that never ran their diff
+
 ### 2026-11-16
 
 - **PR #121**: chore(loom): resync installed Loom to v0.19.1305
