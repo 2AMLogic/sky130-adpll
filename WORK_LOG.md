@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-16
+
+- **PR #121**: chore(loom): resync installed Loom to v0.19.1305
+- **PR #119**: chore(loom): resync installed Loom to v0.19.1302
+
 ### 2026-11-15
 
 - **PR #118**: verification: record the graded netlist's sha256 and check it against the tree
