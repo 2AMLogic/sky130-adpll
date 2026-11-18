@@ -3,28 +3,28 @@
   "kind": "generic",
   "status": "pass",
   "t1_item": 10,
-  "summary": "T1 item 10 (Repo hygiene): 9/9 attestation checks passed (klt signoff --attest)",
+  "summary": "T1 item 10 (Repo hygiene): 11/11 attestation checks passed (klt signoff --attest)",
   "source": "manifests/item10.inventory.json",
   "attestation": {
     "producer": "klt signoff --attest",
     "inventory_schema_version": 1,
     "hash_algorithm": "sha256-raw-bytes",
-    "check_count": 9,
-    "passed_count": 9,
+    "check_count": 11,
+    "passed_count": 11,
     "checks": [
       {
         "check": "present",
         "role": "hygiene",
         "path": ".github/workflows/ci.yml",
         "passed": true,
-        "content_hash": "sha256:f1080e31c0979aa30f94a83382439aaa205b48cdfd460e2e655d754d3022b5b5"
+        "content_hash": "sha256:bbc865de300a321951608c85495dd7097b6dcc5466cd562c891b54418ab036a6"
       },
       {
         "check": "present",
         "role": "hygiene",
         "path": ".github/workflows/signoff.yml",
         "passed": true,
-        "content_hash": "sha256:be9c1a752ef226aecd8dbea5544de0f1ec9c24946f137d017ba7321b46df5a64"
+        "content_hash": "sha256:330541068fa1db5d5d9417a0f5343fc90834a248e0730cd1fb217321c9e88014"
       },
       {
         "check": "present",
@@ -59,7 +59,7 @@
         "role": "hygiene",
         "path": "reuse.lock.json",
         "passed": true,
-        "content_hash": "sha256:e938a3a7e0bfc8722169f9c9058f4aeb6b05358ba8f53fcf3a75f5da50f6ee4c"
+        "content_hash": "sha256:85abedfdb70efd3b2cb3de65fb4362cfb6957cd4c1d9f5a4ac24d9276cc33f57"
       },
       {
         "check": "present",
@@ -67,6 +67,20 @@
         "path": "scripts/lint-rtl.sh",
         "passed": true,
         "content_hash": "sha256:f4b64bd794d27e2a11a6649335b64ce9cedd83cc8ce2e6e02306b96ef2a55ccf"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "scripts/loom-path-gate-base.sh",
+        "passed": true,
+        "content_hash": "sha256:48f457d0ba8957e5c078171e2fc047a93c3a6b8b9966c5753c1e313c51449a00"
+      },
+      {
+        "check": "present",
+        "role": "hygiene",
+        "path": "scripts/selftest_loom_path_gate.sh",
+        "passed": true,
+        "content_hash": "sha256:3a4ab74280a9b63a02ff228c4245e201e681c1f429ebaf8816e18f062c16a048"
       },
       {
         "check": "command",
@@ -93,7 +107,7 @@
         "path": "manifests/item10.inventory.json",
         "scope": "repo"
       },
-      "content_hash": "sha256:0edcb9fe5008396de95cc551e0ec42804a33095dad0b34d0174ddee73704d4b9"
+      "content_hash": "sha256:9a9874b47acc9e15b18a78711c0d2f4723eaa1d35b571821c4f43aecf5148a2e"
     }
   }
 }

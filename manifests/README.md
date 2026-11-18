@@ -33,8 +33,13 @@ The committed record is the verdict of record; it is graded, not hand-read.
   simulated, none measured.
 - `item10.inventory.json`: item 10 (repo hygiene) attestation inventory. It lists
   the README, the licence, both CI workflows (`ci.yml`, `signoff.yml`), both
-  hygiene checkers (`check-signoff.sh`, `check-reuse-lock.sh`), the RTL lint
+  hygiene checkers (`check-signoff.sh`, `check-reuse-lock.sh`), the ci.yml
+  path-gate base selector (`scripts/loom-path-gate-base.sh`) and its selftest
+  (`scripts/selftest_loom_path_gate.sh`), the RTL lint
   script (`scripts/lint-rtl.sh`) and the sibling-reuse lock (`reuse.lock.json`).
+  The selector is attested because it decides which CI jobs run on a diff: an
+  unattested edit to it could silently change the gate's behaviour, the same
+  reason the workflows themselves are attested.
   Attesting the lock means any edit to it — dropping a pinned entry, stripping a
   `sha256`, emptying `files[]` — fails `check-signoff.sh` until item 10 is
   re-recorded in the same PR, so the lock cannot be hollowed silently. The
