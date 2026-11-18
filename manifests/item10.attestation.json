@@ -73,14 +73,14 @@
         "role": "hygiene",
         "path": "scripts/loom-path-gate-base.sh",
         "passed": true,
-        "content_hash": "sha256:3a04f8a8cdc9bdbf1efaef6bd7e09cd669de0beff8b90a2ecc1e6ee379010753"
+        "content_hash": "sha256:48f457d0ba8957e5c078171e2fc047a93c3a6b8b9966c5753c1e313c51449a00"
       },
       {
         "check": "present",
         "role": "hygiene",
         "path": "scripts/selftest_loom_path_gate.sh",
         "passed": true,
-        "content_hash": "sha256:97199bc1fa1d2049b878593e08fbb01b3f3320a29aeeee39fb2f3e4d70eae6d0"
+        "content_hash": "sha256:3a4ab74280a9b63a02ff228c4245e201e681c1f429ebaf8816e18f062c16a048"
       },
       {
         "check": "command",

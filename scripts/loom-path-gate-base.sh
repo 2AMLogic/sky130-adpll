@@ -2,9 +2,12 @@
 # Select the base sha for the ci.yml path gate (job `loom-tooling`, step
 # "Detect changed vendored Loom tooling paths"): the commit to diff against
 # HEAD when deciding whether `.loom/` paths changed. Prints the base sha on
-# stdout, or exits non-zero with a `::error::` annotation when no usable base
-# exists (empty or all-zero), so the gate fails loudly instead of silently
-# skipping the suites below (see .loom/docs/ci-principles.md).
+# stdout, or exits non-zero with a `::error::` annotation on stderr -- stdout
+# stays clean because ci.yml consumes it as the return channel
+# (`BASE="$(sh scripts/loom-path-gate-base.sh)"`), so an annotation written to
+# stdout there would be captured and discarded -- when no usable base exists
+# (empty or all-zero), so the gate fails loudly instead of silently skipping
+# the suites below (see .loom/docs/ci-principles.md).
 #
 # Inputs arrive as step `env:` set from event context, never as `${{ }}`
 # interpolation into this script: EVENT, PR_BASE (pull_request base sha),
@@ -26,7 +29,8 @@ case "$EVENT" in
 esac
 
 fail() {
-  echo "::error::base sha unavailable ('$BASE'); cannot diff .loom/ paths"
+  # stderr, not stdout: ci.yml captures stdout as the return channel.
+  echo "::error::base sha unavailable ('$BASE'); cannot diff .loom/ paths" >&2
   exit 1
 }
 

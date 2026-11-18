@@ -25,20 +25,33 @@ expect_base() {
   fi
 }
 
-# expect_fail <desc> [ENV=value ...] -- gate must exit non-zero and emit the
-# ::error:: annotation, never a usable base.
+# expect_fail <desc> [ENV=value ...] -- gate must exit non-zero, emit the
+# ::error:: annotation on stderr, and leave stdout clean: ci.yml consumes the
+# gate's stdout as its return channel (`BASE="$(sh …)"`), so an annotation on
+# stdout would be captured and discarded and the step would die with no
+# message. Assert on the channels the workflow actually shows, not on a
+# merged stream.
 expect_fail() {
   desc="$1"; shift
-  out="$(env "$@" sh "$GATE" 2>&1)" && rc=0 || rc=$?
+  err_file="$(mktemp)"
+  out="$(env "$@" sh "$GATE" 2>"$err_file")" && rc=0 || rc=$?
+  err="$(cat "$err_file")"
+  rm -f "$err_file"
   if [ "$rc" -ne 0 ]; then
-    case "$out" in
-      *"::error::"*)
-        pass=$((pass + 1)); echo "ok: $desc"
-        ;;
-      *)
-        fail=$((fail + 1)); echo "FAIL: $desc (rc=$rc but no ::error:: line)"
-        ;;
-    esac
+    if [ -n "$out" ]; then
+      fail=$((fail + 1)); echo "FAIL: $desc (rc=$rc but stdout not clean: '$out')"
+    elif [ -z "$err" ]; then
+      fail=$((fail + 1)); echo "FAIL: $desc (rc=$rc but nothing on stderr)"
+    else
+      case "$err" in
+        *"::error::"*)
+          pass=$((pass + 1)); echo "ok: $desc"
+          ;;
+        *)
+          fail=$((fail + 1)); echo "FAIL: $desc (rc=$rc but no ::error:: line on stderr)"
+          ;;
+      esac
+    fi
   else
     fail=$((fail + 1)); echo "FAIL: $desc (unexpected exit 0, out='$out')"
   fi
