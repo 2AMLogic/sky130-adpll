@@ -1,7 +1,8 @@
 name: klt signoff
 
-# This block's T1 tier state is graded, not hand-read. On every push and PR,
-# re-attest the item 10 inventory and re-grade the block manifest, and fail if
+# This block's T1 tier state is graded, not hand-read. On every push, PR, and
+# merge-group run, re-attest the item 10 inventory and re-grade the block
+# manifest, and fail if
 # either committed record (manifests/item10.attestation.json,
 # manifests/sky130-adpll.signoff.json) no longer reproduces. Whoever changes a
 # cited artifact, the manifest or the vendored checklist regenerates the
@@ -13,6 +14,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 permissions:

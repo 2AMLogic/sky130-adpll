@@ -32,6 +32,20 @@
       ],
       "diverged": true,
       "notes": "Harness shape only (cocotb DUT helpers, record checker, gate-level pattern). No file content is vendored; the runner and checker here are new and much smaller. verification/gate-level/ takes the sibling's SHAPE -- a committed sky130_fd_sc_hd_sim_defines.v listed first on the source list, plus a wrapper script -- but not its content: run-gate-level.sh is written against this repo's verification/run_tests.py rather than the sibling's `klt functional-verification` request JSON, and the defines DIVERGE on UNIT_DELAY. The sibling defines it as `#1` to work around Icarus leaving D_delayed/CLK_delayed undriven under the timing arm; measured here (2AMLogic/sky130-adpll#70, Icarus 13.0): that all-x failure does not reproduce, and `#1` instead fails test_top.py:37 on seeds 12345/777/20260114 because test_top's tick() samples 1 ns after each ref_clk edge, exactly when a #1 flop output transitions. This repo defines UNIT_DELAY empty (zero delay). Pins to be revisited with the environment pin (#3)."
+    },
+    {
+      "source": "2AMLogic/sky130-comparator",
+      "commit": "38b0058f66674085f1eacc02008d30d4c69cb80c",
+      "mode": "referenced",
+      "issue": "2AMLogic/sky130-adpll#131",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/signoff.yml",
+        "scripts/loom-path-gate-base.sh",
+        "scripts/selftest_loom_path_gate.sh"
+      ],
+      "diverged": true,
+      "notes": "Merge-queue adaptation shape only, from the sibling's t1-signoff.yml at commit 38b0058 (its merge_group support commit): add a bare `merge_group:` trigger next to pull_request on every workflow a merge queue must schedule, plumb the event shas as step `env:` (EVENT / PR_BASE / PUSH_BEFORE / MG_BASE instead of `${{ }}` inside the script) so the selection is testable, and take the merge_group base from github.event.merge_group.base_sha because the checked-out ref is the trial merge. No content is vendored and the sibling is NOT file-mapped: its gate is a Python append-only checker specific to sim/ evidence, so only the trigger + base-plumbing + fail-closed-on-empty-base shape is taken, re-expressed here as a POSIX sh selector (scripts/loom-path-gate-base.sh) with its own shell selftest, guarding this repo's .loom/ path gate. The local workflows differ further from the sibling's: ci.yml also gates an allowlisted .loom/ suite set and signoff.yml has no base-dependent step at all (it only gained the trigger)."
     }
   ]
 }

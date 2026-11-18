@@ -2,6 +2,7 @@ name: ci
 
 on:
   pull_request:
+  merge_group:
   push:
     branches: [main]
 
@@ -15,6 +16,12 @@ jobs:
       # installs so a gating regression fails in seconds, not after setup.
       - name: Runner CLI gating self-test
         run: python3 verification/selftest_run_tests.py
+
+      - name: Path-gate base-selection self-test
+        # Drives scripts/loom-path-gate-base.sh over every event shape the
+        # path gate below can see (pull_request, push, merge_group, and the
+        # fail-closed cases) before any toolchain is installed.
+        run: sh scripts/selftest_loom_path_gate.sh
 
       - name: Install simulation and lint tools
         run: |
@@ -91,20 +98,19 @@ jobs:
       # pass).
       - name: Detect changed vendored Loom tooling paths
         id: paths
+        # Event context enters as step env, never as ${{ }} inside the
+        # script, so the base selection is testable:
+        # scripts/selftest_loom_path_gate.sh drives it for pull_request,
+        # push, and merge_group (the trial-merge checkout's base, issue
+        # #131) plus the fail-closed cases.
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          MG_BASE: ${{ github.event.merge_group.base_sha }}
         run: |
           set -euo pipefail
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
-          else
-            BASE="${{ github.event.before }}"
-          fi
-          # A base we cannot diff against (empty or all-zero sha, e.g. a
-          # branch-creation push) must fail loudly, never silently skip the
-          # suites below.
-          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
-            echo "::error::base sha unavailable ('$BASE'); cannot diff .loom/ paths"
-            exit 1
-          fi
+          BASE="$(sh scripts/loom-path-gate-base.sh)"
           if [[ -n "$(git diff --name-only "$BASE" HEAD -- .loom/)" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
