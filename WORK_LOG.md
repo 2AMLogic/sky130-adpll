@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-18
+
+- **PR #132**: ci: schedule workflows on merge_group and extract the path-gate base selection
+- **Issue #131** (closed): Merge queue: add the merge_group trigger and adapt the PR-metadata gates
+
 ### 2026-11-17
 
 - **PR #127**: ci: widen loom-tooling allowlist with wired merge-pr/spawn-claude suites
