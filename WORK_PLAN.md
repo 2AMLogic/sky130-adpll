@@ -19,13 +19,13 @@ _None._
 
 `loom:important`; taken before unlabelled work.
 
-- **#2**: Draft and ratify the target spec
+- **#2**: Draft and ratify the target spec *(held)*
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
 - **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(held)*
 
 ## Ready
 
-Human-approved issues ready for implementation (`loom:issue`).
+Human-approved issues (`loom:issue`) ready for implementation — excluding held (`loom:blocked`/`loom:operator`/`loom:frozen`), `loom:building`, and issues closed by an open `loom:pr` PR (listed under Approved).
 
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
 
@@ -33,7 +33,7 @@ Human-approved issues ready for implementation (`loom:issue`).
 
 Issues currently being built (`loom:building`).
 
-- **#131**: Merge queue: add the merge_group trigger and adapt the PR-metadata gates
+_None._
 
 ## PRs Awaiting Review
 
@@ -51,9 +51,8 @@ _None._
 
 Issues carrying `loom:curated`.
 
-- **#2**: Draft and ratify the target spec *(curated)*
+- **#2**: Draft and ratify the target spec *(curated)* *(held)*
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
-- **#131**: Merge queue: add the merge_group trigger and adapt the PR-metadata gates *(curated)*
 - **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)* *(held)*
 - **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)* *(held)*
 
@@ -72,11 +71,11 @@ _None._
 | Operator merge-risk holds | 0 |
 | Very important | 1 |
 | Important | 3 |
-| Ready (`loom:issue`) | 1 |
-| In Progress (`loom:building`) | 1 |
+| Ready (`loom:issue`, net of holds/building/merge-pending) | 1 |
+| In Progress (`loom:building`) | 0 |
 | PRs awaiting review | 1 |
 | Approved PRs awaiting merge | 0 |
-| Curated | 5 |
+| Curated | 4 |
 | Architect / Hermit proposals | 0 |
 | Active epics | 0 |
 <!-- guide:plan-body:end -->
