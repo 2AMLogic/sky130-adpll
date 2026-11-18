@@ -13,7 +13,7 @@ _None._
 
 `loom:very-important` (one counts per workspace); every stage takes these first.
 
-- **#19**: Open the spec ratification PR for the numeric and architecture targets, and get both key reviews
+- **#19**: Open the spec ratification PR for the numeric and architecture targets, and get both key reviews *(held)*
 
 ## Important
 
@@ -21,7 +21,7 @@ _None._
 
 - **#2**: Draft and ratify the target spec
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
-- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md
+- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(held)*
 
 ## Ready
 
@@ -53,8 +53,8 @@ Issues carrying `loom:curated`.
 
 - **#2**: Draft and ratify the target spec *(curated)*
 - **#18**: Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2) *(curated)*
-- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)*
-- **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)*
+- **#29**: T1 item 2 (layout): placed-and-routed ADPLL GDS with the DCO/TDC placement constraints of spec/placement-constraints.md *(curated)* *(held)*
+- **#51**: T1 item 9 follow-on: DCO cell-level SPICE benches (rows 2, 3) and close O1 corner mapping *(curated)* *(held)*
 
 ## Proposed (Architect / Hermit)
 
