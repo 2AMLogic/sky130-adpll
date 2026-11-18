@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "t1-attestation-inventory",
   "t1_item": 10,
-  "description": "Repo hygiene inventory for sky130-adpll: the README, licence, both CI workflows, the hygiene checkers, the RTL lint script and the sibling-reuse lock (reuse.lock.json). The verification suite itself is item 9's inventory, not this one.",
+  "description": "Repo hygiene inventory for sky130-adpll: the README, licence, both CI workflows, the hygiene checkers, the CI path-gate base selector and its selftest, the RTL lint script and the sibling-reuse lock (reuse.lock.json). The verification suite itself is item 9's inventory, not this one.",
   "hygiene": [
     "README.md",
     "LICENSE",
@@ -10,6 +10,8 @@
     ".github/workflows/signoff.yml",
     "manifests/check-signoff.sh",
     "manifests/check-reuse-lock.sh",
+    "scripts/loom-path-gate-base.sh",
+    "scripts/selftest_loom_path_gate.sh",
     "scripts/lint-rtl.sh",
     "reuse.lock.json"
   ],
