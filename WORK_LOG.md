@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-19
+
+- **PR #136**: signoff: use the checklist bundled in the pinned klt wheel
+- **Issue #135** (closed): Use the pinned wheel checklist for ADPLL signoff
+
 ### 2026-11-18
 
 - **PR #132**: ci: schedule workflows on merge_group and extract the path-gate base selection
