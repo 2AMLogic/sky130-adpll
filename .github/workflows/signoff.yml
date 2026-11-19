@@ -5,7 +5,7 @@ name: klt signoff
 # manifest, and fail if
 # either committed record (manifests/item10.attestation.json,
 # manifests/sky130-adpll.signoff.json) no longer reproduces. Whoever changes a
-# cited artifact, the manifest or the vendored checklist regenerates the
+# cited artifact, the manifest or the grader pin regenerates the
 # records in the same PR. No path filter: a stale record must fail on any push.
 #
 # See manifests/README.md for the klt pin and the regeneration commands.

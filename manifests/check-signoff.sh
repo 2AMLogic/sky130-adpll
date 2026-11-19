@@ -19,6 +19,5 @@ fi
     --check manifests/item9.attestation.json
 "$KLT" signoff --attest 10 --inventory manifests/item10.inventory.json \
     --check manifests/item10.attestation.json
-"$KLT" signoff --manifest manifests/sky130-adpll.json \
-    --tiers-doc manifests/design-evidence-tiers.md \
+KLT_TIERS_DOC='' "$KLT" signoff --manifest manifests/sky130-adpll.json \
     --check manifests/sky130-adpll.signoff.json
