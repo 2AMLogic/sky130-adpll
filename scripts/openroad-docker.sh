@@ -70,7 +70,8 @@ MOUNT_DIR="${OPENROAD_DOCKER_MOUNT:-$(pwd)}"
 # variant-aware, picking the root that actually *contains* the requested
 # variant, whereas an existence-only ladder can stop at an unrelated PDK
 # family (e.g. a `~/.ciel` install of some other variant) before ever
-# reaching the `~/.volare` root that holds sky130A (#90). That resolved root
+# reaching the `~/.volare` root that holds sky130A
+# (2AMLogic/sky130-modexp#90). That resolved root
 # gets bind-mounted too -- `klt place-and-route`/`klt synthesize` resolve
 # liberty/LEF paths under there, and those absolute host paths need to exist
 # inside the container at the identical path (see comment block above).
