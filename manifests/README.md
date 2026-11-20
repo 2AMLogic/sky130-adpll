@@ -85,8 +85,9 @@ uvx --from "$K" klt signoff --attest 9 --inventory manifests/item9.inventory.jso
     -o manifests/item9.attestation.json
 uvx --from "$K" klt signoff --attest 10 --inventory manifests/item10.inventory.json \
     -o manifests/item10.attestation.json
-# if the inventory changed, copy provenance.input.content_hash of the envelope
-# into evidence.<item>.content_hash in sky130-adpll.json, then:
+# Copy each refreshed envelope’s provenance.input.content_hash into the matching
+# evidence.<item>.content_hash in sky130-adpll.json. For item 1 this digest
+# covers the inventory, sources and derived netlist. Then grade the manifest.
 KLT_TIERS_DOC='' uvx --from "$K" klt signoff --manifest manifests/sky130-adpll.json \
     --format json \
     > manifests/sky130-adpll.signoff.json   # exit 3 = some item unmet; expected

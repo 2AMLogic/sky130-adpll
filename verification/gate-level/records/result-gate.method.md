@@ -12,7 +12,7 @@ behaves identically on the synthesized netlist.
 | | |
 |---|---|
 | netlist | `flow/adpll/records/adpll_top_synth.v` |
-| netlist sha256 | `7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd` |
+| netlist sha256 | `57c1ec13c9a8296b2f47af53c223254f751a8ef701228e2a69940b6ecd3f5716` |
 | cell models | `$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/{primitives,sky130_fd_sc_hd}.v` |
 | open_pdks revision | `f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7` |
 | sim defines | `FUNCTIONAL`, `UNIT_DELAY` (empty = zero delay); `USE_POWER_PINS` undefined |
@@ -23,8 +23,8 @@ behaves identically on the synthesized netlist.
 | seed | `12345` |
 | iverilog | Icarus Verilog version 13.0 (stable) (v13_0) |
 | cocotb | 1.9.2 |
-| python | 3.13.16 |
-| commit | `2e9b5ec75470a959aabac40780ecac482e0b7f4a` (dirty: false) |
+| python | 3.12.3 |
+| commit | `00c4df9bd09379f3509c103f067173f2ffefbbb4` (dirty: false) |
 | level | `gate` |
 
 | test | expected | observed | verdict |
