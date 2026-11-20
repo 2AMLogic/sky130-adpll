@@ -9,7 +9,7 @@
       "files": [
         {
           "path": "scripts/setup-env.sh",
-          "sha256": "250855bc8a9f11e384dc2b66ed53a9ff4844a039d018f3047dacd465a67c5211"
+          "sha256": "24bbc8c0a575392c0e5949a99a3d2f4c867a30ee93665adc2fd0e9044b449fec"
         },
         {
           "path": "scripts/openroad-docker.sh",

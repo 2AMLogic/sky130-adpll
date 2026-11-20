@@ -40,7 +40,7 @@ cd "${REPO_ROOT}" || exit 1
 
 # --- pinned versions -- keep in sync with flow/smoke/records/environment.json ---
 # Keep assignments in plain NAME="value" form so tooling can parse them.
-KLT_VERSION="0.8.0"
+KLT_VERSION="0.9.2"
 CIEL_VERSION="2.6.1"
 CIEL_PDK_FAMILY="sky130"
 CIEL_SKY130_VERSION="f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
