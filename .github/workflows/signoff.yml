@@ -34,12 +34,12 @@ jobs:
       - name: Check reuse.lock.json hashes match committed content
         run: sh manifests/check-reuse-lock.sh
 
-      # Pinned to the klayout-tools 0.8.0 release on PyPI. Keep in step with
+      # Pinned to the klayout-tools 0.9.2 release on PyPI. Keep in step with
       # manifests/README.md and scripts/setup-env.sh.
       - name: Install pinned klt
         run: |
-          pip install "klayout-tools==0.8.0"
-          test "$(klt --version)" = "klt 0.8.0"
+          pip install "klayout-tools==0.9.2"
+          test "$(klt --version)" = "klt 0.9.2"
 
       - name: Check committed signoff records reproduce
         run: sh manifests/check-signoff.sh

@@ -24,7 +24,7 @@
         "role": "hygiene",
         "path": ".github/workflows/signoff.yml",
         "passed": true,
-        "content_hash": "sha256:edba87d3947a7a6c4195131174685bce729c198bcc8fb6d1865da5e5f861d827"
+        "content_hash": "sha256:bdd07398a5301ad0f80574227db12ef2160867bc0dd84479caa48b5254d3038e"
       },
       {
         "check": "present",
@@ -59,7 +59,7 @@
         "role": "hygiene",
         "path": "reuse.lock.json",
         "passed": true,
-        "content_hash": "sha256:85abedfdb70efd3b2cb3de65fb4362cfb6957cd4c1d9f5a4ac24d9276cc33f57"
+        "content_hash": "sha256:914e6894893b6ba38df0c93d6cbbd122c7aee037a684131b526c960c9469a194"
       },
       {
         "check": "present",
@@ -98,7 +98,7 @@
     ]
   },
   "provenance": {
-    "klt_version": "0.8.0",
+    "klt_version": "0.9.2",
     "klayout_version": null,
     "pdk": null,
     "deck": null,
