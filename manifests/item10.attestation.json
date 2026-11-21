@@ -59,7 +59,7 @@
         "role": "hygiene",
         "path": "reuse.lock.json",
         "passed": true,
-        "content_hash": "sha256:85abedfdb70efd3b2cb3de65fb4362cfb6957cd4c1d9f5a4ac24d9276cc33f57"
+        "content_hash": "sha256:d2865e52d87946fbe1ddb735022e820664263338e511d4c6019e889f641f76ae"
       },
       {
         "check": "present",

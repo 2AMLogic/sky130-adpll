@@ -7,8 +7,8 @@
 #      into it at the pinned release version below.
 #   2. Installs the pinned Yosys build (YoWASP wheel) into that .venv and
 #      verifies its WebAssembly module's sha256 -- the mapper identity that
-#      `yosys -V` does NOT report (issue #143) -- then exposes it as
-#      `.venv/bin/yosys`.
+#      `yosys -V` does NOT report (2AMLogic/sky130-modexp#143) -- then
+#      exposes it as `.venv/bin/yosys`.
 #   3. Fetches the pinned `sky130A` PDK version via `ciel` into
 #      `${PDK_ROOT:-$HOME/.ciel}` and verifies the installed tree's open_pdks
 #      revision (its `SOURCES` file) matches the pin.
@@ -50,9 +50,10 @@ CIEL_SKY130_VERSION="f6eeac7dad085ffcc829ccfd721f7b4ce39edcf7"
 # compiled into it -- so two hosts on the same pinned version execute a
 # byte-identical mapper. A host-built `yosys` does not have that property:
 # `yosys -V` names the Yosys version but says nothing about the embedded abc
-# build, and issue #141 measured two hosts at the same nominal `yosys -V`
-# mapping the same design to 1204 vs. 1105 instances. So the pin below is
-# checked by CONTENT (the wasm sha256), not by version string.
+# build, and 2AMLogic/sky130-modexp#141 measured two hosts at the same
+# nominal `yosys -V` mapping the same design to 1204 vs. 1105 instances.
+# So the pin below is checked by CONTENT (the wasm sha256), not by
+# version string.
 YOWASP_YOSYS_VERSION="0.68.0.0.post1208"
 YOWASP_YOSYS_WASM_SHA256="e37a7e65e3fa4efbbd64a9c1b0e906be16cdc6c4d5273109d17537f78449f38c"
 # ----------------------------------------------------------------------------
@@ -229,9 +230,10 @@ if [ "${WASM_SHA}" != "${YOWASP_YOSYS_WASM_SHA256}" ]; then
   echo "  actual:   sha256:${WASM_SHA}"
   echo "  -> this is exactly the failure the pin exists to catch: a different"
   echo "     mapper build maps the same RTL to a different instance count and"
-  echo "     can move a timing-closure verdict across the threshold (issue"
-  echo "     #141 measured 1.06 ns of setup slack at ss_n40C_1v28). Do NOT"
-  echo "     mint evidence records from this environment."
+  echo "     can move a timing-closure verdict across the threshold"
+  echo "     (2AMLogic/sky130-modexp#141 measured 1.06 ns of setup slack at"
+  echo "     ss_n40C_1v28). Do NOT mint evidence records from this"
+  echo "     environment."
   echo "  -> re-pin deliberately (update YOWASP_YOSYS_VERSION and"
   echo "     YOWASP_YOSYS_WASM_SHA256 here and the matching entry in"
   echo "     flow/smoke/records/environment.json together), or remove ${VENV_DIR} and re-run."
@@ -291,9 +293,9 @@ fi
 echo
 echo "== toolchain check (iverilog / verilator / openroad) =="
 # yosys is NOT probed here: step 3 provisions it into the venv at a pinned,
-# digest-verified build. A host `yosys` on $PATH is not that build (issue
-# #143), so "some yosys resolves" is not the property this check should
-# report.
+# digest-verified build. A host `yosys` on $PATH is not that build
+# (2AMLogic/sky130-modexp#143), so "some yosys resolves" is not the
+# property this check should report.
 echo "  yosys:    ${VENV_DIR}/bin/yosys (pinned, verified in step 3)"
 missing=()
 if command -v iverilog >/dev/null 2>&1; then
