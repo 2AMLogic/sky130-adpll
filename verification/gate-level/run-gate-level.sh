@@ -158,7 +158,12 @@ RUN=("${PYTHON}" verification/run_tests.py
      --build-dir "${REPO_ROOT}/sim/build/gate-level"
      --record "${RECORD}")
 [ -n "${SEED}" ] && RUN+=(--seed "${SEED}")
-"${RUN[@]}" || die "the gate-level run did not meet its expectation (see PROBLEM lines above).
+# The runner records dut.sources entries under the PDK root as '$PDK_ROOT/...'
+# tokens, so it must see THIS script's effective root -- resolved above from
+# the default or --pdk-root, which can differ from any PDK_ROOT the
+# surrounding environment exports; inheriting that instead would leave the
+# tokenization silently matching the wrong root (or nothing).
+PDK_ROOT="${PDK_ROOT}" "${RUN[@]}" || die "the gate-level run did not meet its expectation (see PROBLEM lines above).
   -> the record at ${RECORD} carries the detail; it is NOT evidence of a pass."
 
 # --- companion method note -------------------------------------------------
