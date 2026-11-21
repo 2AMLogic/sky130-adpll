@@ -9,6 +9,10 @@ run that selected the models' timing arm is a recorded problems[] failure.
 With --netlist, the designated netlist's repo-relative path and its sha256
 are recorded too (dut.netlist / dut.netlist_sha256), so check_records.py can
 re-derive the hash and fail a record the tree no longer backs.
+dut.sources keeps repo-internal sources repo-relative but records sources
+under the PDK_ROOT the caller exported (run-gate-level.sh exports its
+effective root) as '$PDK_ROOT/...' entries, so a record does not encode the
+run host's account or checkout depth.
 Exit 0 only if every smoke test passed AND the negative control failed. A
 missing tool is an error, never a skip.
 
@@ -48,6 +52,27 @@ def cell_model_arm(log_path):
     except OSError as e:
         sys.exit(f"run_tests: compile log missing or unreadable ({log_path}): {e}")
     return "timing" if "Choosing typ expression" in text else "functional"
+
+
+def pdk_root_source(source, pdk_root):
+    """Record form of `source` when it sits under `pdk_root`: the
+    '$PDK_ROOT/' token plus the suffix as constructed (for this PDK,
+    'sky130A/...'). None when the root is empty or the source is outside
+    it -- the caller then falls back to the relpath form. The match is
+    lexical, on whole path components: never a string prefix (a sibling
+    'pdk-backup' is not under a root named 'pdk') and never
+    symlink-resolved (an open_pdks install may symlink 'sky130A' to a
+    versioned directory, and resolving would rewrite the very suffix the
+    token claims to preserve). abspath() normalizes against the process
+    cwd, the same root the source list was built relative to."""
+    if not pdk_root:
+        return None
+    try:
+        suffix = Path(os.path.abspath(source)).relative_to(Path(os.path.abspath(pdk_root)))
+    except ValueError:
+        return None
+    return f"$PDK_ROOT/{suffix.as_posix()}"
+
 
 # DUT registry: name -> (sources, toplevel, test module, smoke testcases).
 # Every module also carries a `negative_control`.
@@ -249,7 +274,11 @@ def run_one(args, name):
 
     rev = sh("git", "rev-parse", "HEAD").stdout.strip() or "unknown"
     dirty = bool(sh("git", "status", "--porcelain", "--untracked-files=no").stdout.strip())
-    dut = {"sources": [os.path.relpath(s, REPO) for s in args.sources], "toplevel": args.toplevel}
+    # $PDK_ROOT tokens need the root the source list was actually built
+    # from -- run-gate-level.sh exports its effective root for this call.
+    pdk_root = os.environ.get("PDK_ROOT")
+    dut = {"sources": [pdk_root_source(s, pdk_root) or os.path.relpath(s, REPO)
+                       for s in args.sources], "toplevel": args.toplevel}
     if args.netlist is not None:
         netlist = Path(args.netlist)
         if not netlist.is_file():
