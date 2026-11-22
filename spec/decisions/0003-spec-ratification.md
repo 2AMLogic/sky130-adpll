@@ -34,7 +34,7 @@ the phase-detector fork, where the operator chooses (§2).
 ### A. Numeric and architecture targets outside the phase-detector fork
 
 | Record | What is put forward |
-|---|---|---|
+|---|---|
 | `spec/spec.md` corner sets | **C27**, **C27+skew**, **C5** and their uses, as defined there |
 | `spec/spec.md` rows | `1` output frequency (Target); `1f` output frequency (Fallback); `1s` output frequency (Stretch); `2` DCO tuning range; `3` DCO frequency resolution (fine LSB, after dither); `4` reference input frequency; `5` multiplication N (integer-N, Target); `5f` multiplication (Fallback); `5s` multiplication (Stretch); `7` loop bandwidth; `8` loop filter; `10` lock time; `11` period jitter (rms); `11l` long-term jitter (informational); `12` supply; `13` power; `14` implementation; `15` signoff |
 | `spec/spec.md` jitter method | The whole "Jitter method" section as written: basis, simulator and noise, run length, seeds, estimator, convergence check, supply noise |
