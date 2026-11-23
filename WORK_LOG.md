@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-23
 
+- **PR #141**: chore(deps): pin klayout-tools 0.9.2 and refresh ADPLL signoff evidence
+- **Issue #140** (closed): Bump the klayout-tools pin 0.8.0 -> 0.9.2 and regenerate the signoff record and attestations
 - **PR #148**: fix: record gate-level cell-model sources as $PDK_ROOT tokens
 - **Issue #143** (closed): Gate-level record writes host-specific cell-model source paths instead of $PDK_ROOT-relative ones
 
