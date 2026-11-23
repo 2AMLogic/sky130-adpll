@@ -1,7 +1,7 @@
 # Block manifest and tier-verdict record
 
 `klt signoff` input and committed output for T1 of
-[`klayout-tools` `docs/design-evidence-tiers.md`](https://github.com/2AMLogic/klayout-tools/blob/v0.8.0/docs/design-evidence-tiers.md).
+[`klayout-tools` `docs/design-evidence-tiers.md`](https://github.com/2AMLogic/klayout-tools/blob/v0.9.2/docs/design-evidence-tiers.md).
 The committed record is the verdict of record; it is graded, not hand-read.
 
 ## Files
@@ -64,11 +64,11 @@ The committed record is the verdict of record; it is graded, not hand-read.
 
 ## klt pin
 
-`klayout-tools==0.8.0` from PyPI (`klt 0.8.0`). The same pin is in
+`klayout-tools==0.9.2` from PyPI (`klt 0.9.2`). The same pin is in
 `.github/workflows/signoff.yml` and `scripts/setup-env.sh`; CI fails if
-`klt --version` does not print `klt 0.8.0`.
+`klt --version` does not print `klt 0.9.2`.
 
-The grader reads the checklist bundled in this wheel. The v0.8.0 link at the
+The grader reads the checklist bundled in this wheel. The v0.9.2 link at the
 top of this page shows the same checklist.
 
 ## Regenerate the evidence and report
@@ -78,15 +78,16 @@ the manifest or the grader pin. The grade command clears `KLT_TIERS_DOC` so
 an inherited override cannot change which checklist is read.
 
 ```sh
-K="klayout-tools==0.8.0"
+K="klayout-tools==0.9.2"
 PDK=sky130A PDK_ROOT=$HOME/.ciel uvx --from "$K" klt signoff --attest 1 \
     --inventory manifests/item1.inventory.json -o manifests/item1.attestation.json
 uvx --from "$K" klt signoff --attest 9 --inventory manifests/item9.inventory.json \
     -o manifests/item9.attestation.json
 uvx --from "$K" klt signoff --attest 10 --inventory manifests/item10.inventory.json \
     -o manifests/item10.attestation.json
-# if the inventory changed, copy provenance.input.content_hash of the envelope
-# into evidence.<item>.content_hash in sky130-adpll.json, then:
+# Copy each refreshed envelope’s provenance.input.content_hash into the matching
+# evidence.<item>.content_hash in sky130-adpll.json. For item 1 this digest
+# covers the inventory, sources and derived netlist. Then grade the manifest.
 KLT_TIERS_DOC='' uvx --from "$K" klt signoff --manifest manifests/sky130-adpll.json \
     --format json \
     > manifests/sky130-adpll.signoff.json   # exit 3 = some item unmet; expected

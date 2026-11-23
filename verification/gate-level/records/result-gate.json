@@ -1,26 +1,26 @@
 {
   "schema": 2,
-  "timestamp": "2026-11-15T22:59:07+00:00",
-  "commit": "2e9b5ec75470a959aabac40780ecac482e0b7f4a",
+  "timestamp": "2026-11-20T19:51:02+00:00",
+  "commit": "00c4df9bd09379f3509c103f067173f2ffefbbb4",
   "dirty": false,
   "level": "gate",
   "dut": {
     "sources": [
       "verification/gate-level/sky130_fd_sc_hd_sim_defines.v",
-      "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
-      "../../../../../.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+      "../../../../../../../home/loom/.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+      "../../../../../../../home/loom/.ciel/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
       "flow/adpll/records/adpll_top_synth.v"
     ],
     "toplevel": "adpll_top",
     "netlist": "flow/adpll/records/adpll_top_synth.v",
-    "netlist_sha256": "7997ac1f384322ebc68863fca8bdf1d391b5b30b1554d9b6832068947268e2fd"
+    "netlist_sha256": "57c1ec13c9a8296b2f47af53c223254f751a8ef701228e2a69940b6ecd3f5716"
   },
   "seed": 12345,
   "tools": {
     "iverilog": "Icarus Verilog version 13.0 (stable) (v13_0)",
-    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20261005",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20261119",
     "cocotb": "1.9.2",
-    "python": "3.13.16"
+    "python": "3.12.3"
   },
   "method": {
     "cell_model_arm": "functional"
