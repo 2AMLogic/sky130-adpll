@@ -2,6 +2,21 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-23
+
+- **PR #148**: fix: record gate-level cell-model sources as $PDK_ROOT tokens
+- **Issue #143** (closed): Gate-level record writes host-specific cell-model source paths instead of $PDK_ROOT-relative ones
+
+### 2026-11-22
+
+- **Issue #18** (closed as not planned): Install the EE-key and market-key ratification reviewer trees (2am#5346 stage 2)
+
+### 2026-11-21
+
+- **PR #145**: docs: correct reuse-lock divergence note and qualify sibling issue citations
+- **Issue #146** (closed): Friction protocol: file the two klt gaps measured at the 0.9.2 pin (placement is measurement-only; synthesize timing null under the pinned YoWASP mapper)
+- **Issue #142** (closed): reuse.lock.json divergence note understates the local edit to the vendored scripts/setup-env.sh
+
 ### 2026-11-19
 
 - **PR #136**: signoff: use the checklist bundled in the pinned klt wheel
