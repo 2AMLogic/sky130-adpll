@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-26
 
+- **PR #160**: chore: ignore Loom's .loom/account-ranking.codex runtime file
+- **Issue #155** (closed): check-main-clean.sh exits 3 on untracked Loom runtime file .loom/account-ranking.codex
 - **PR #157**: fix(verification): enforce gate-level provenance checks on schema-1 records
 - **Issue #150** (closed): Remove obsolete schema-1 grandfathering in verification/check_records.py
 
