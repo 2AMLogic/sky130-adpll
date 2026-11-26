@@ -2,6 +2,11 @@
 
 Chronological record of merged PRs and closed issues, maintained by the Guide role (newest first).
 
+### 2026-11-26
+
+- **PR #157**: fix(verification): enforce gate-level provenance checks on schema-1 records
+- **Issue #150** (closed): Remove obsolete schema-1 grandfathering in verification/check_records.py
+
 ### 2026-11-23
 
 - **PR #141**: chore(deps): pin klayout-tools 0.9.2 and refresh ADPLL signoff evidence
