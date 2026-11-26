@@ -80,38 +80,21 @@ class CellModelArmRule(unittest.TestCase):
         self.assertTrue(
             any("missing method.cell_model_arm" in e for e in errs), errs)
 
-    def test_schema1_gate_is_grandfathered(self):
+    def test_schema1_gate_is_not_exempt_from_the_arm(self):
+        errs = check(record(schema=1, method={"cell_model_arm": "timing"}))
+        self.assertTrue(any("timing arm" in e for e in errs), errs)
+
+    def test_schema1_gate_with_no_arm_is_rejected(self):
         rec = record(schema=1)
         del rec["method"]
-        self.assertEqual(check(rec), [])
+        errs = check(rec)
+        self.assertTrue(
+            any("missing method.cell_model_arm" in e for e in errs), errs)
 
     def test_schema2_rtl_needs_no_arm(self):
         rec = record(level="rtl")
         del rec["method"]
         self.assertEqual(check(rec), [])
-
-    def test_gate_bool_schema_is_rejected(self):
-        # isinstance(True, int) is True and True == 1, so a bool schema must
-        # not be grandfathered: the arm stays required.
-        rec = record(schema=True)
-        del rec["method"]
-        errs = check(rec)
-        self.assertTrue(
-            any("missing method.cell_model_arm" in e for e in errs), errs)
-
-    def test_gate_string_schema_is_rejected(self):
-        rec = record(schema="2")
-        del rec["method"]
-        errs = check(rec)
-        self.assertTrue(
-            any("missing method.cell_model_arm" in e for e in errs), errs)
-
-    def test_gate_float_schema_is_rejected(self):
-        rec = record(schema=2.0)
-        del rec["method"]
-        errs = check(rec)
-        self.assertTrue(
-            any("missing method.cell_model_arm" in e for e in errs), errs)
 
     def test_arm_error_precedes_ok_disagreement(self):
         errs = check(record(method={"cell_model_arm": "timing"}, ok=True))
@@ -205,20 +188,14 @@ class NetlistHashRule(unittest.TestCase):
         # dut.netlist is hashed, so the fixture passes against the real root.
         self.assertEqual(check(record()), [])
 
-    def test_schema1_gate_is_grandfathered_without_netlist_fields(self):
+    def test_schema1_gate_is_not_exempt_from_netlist_fields(self):
         r = self.rec(schema=1)
         del r["dut"]["netlist"]
         del r["dut"]["netlist_sha256"]
-        self.assertEqual(check(r, repo_root=self.root), [])
-
-    def test_non_int_schema_spellings_still_require_the_fields(self):
-        for schema in ("2", 2.0, True):
-            r = self.rec(schema=schema)
-            del r["dut"]["netlist"]
-            del r["dut"]["netlist_sha256"]
-            errs = check(r, repo_root=self.root)
-            self.assertTrue(
-                any("missing dut.netlist" in e for e in errs), (schema, errs))
+        errs = check(r, repo_root=self.root)
+        self.assertTrue(any("missing dut.netlist" in e for e in errs), errs)
+        self.assertTrue(
+            any("missing dut.netlist_sha256" in e for e in errs), errs)
 
     def test_rtl_record_with_no_netlist_fields_passes(self):
         r = record(level="rtl")
