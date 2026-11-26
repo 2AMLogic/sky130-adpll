@@ -6,13 +6,12 @@ With no argument, checks every <suite>.json under sim/build/verification/
 (and fails if there are none).
 Checks schema, that tool versions and the commit are present, that the
 smoke tests passed, and that every expected-fail test (the negative
-control) actually failed. A gate-level record at any schema other than
-the grandfathered int 1 must also state the cell-model arm the compile
-selected and it must be the functional one, and must name the netlist it
-graded (dut.netlist + dut.netlist_sha256): the sha256 is re-derived from
-the committed file and any mismatch -- including a netlist that no longer
-exists in the tree -- is a failure, never a skip. Schema-1 records are
-grandfathered. Exit 0 pass, 1 invalid.
+control) actually failed. A gate-level record must also state the
+cell-model arm the compile selected and it must be the functional one, and
+must name the netlist it graded (dut.netlist + dut.netlist_sha256): the
+sha256 is re-derived from the committed file and any mismatch -- including a
+netlist that no longer exists in the tree -- is a failure, never a skip.
+Exit 0 pass, 1 invalid.
 """
 
 import hashlib
@@ -59,22 +58,14 @@ def check(rec, repo_root=None):
                 errs.append(f"{t['name']}: control failed but not on an assertion")
     # Gate-level records must state the cell-model arm the compile selected,
     # and it must be the functional one: a timing-arm record carries the
-    # models' built-in typ delays -- an unstated timing claim. Fail closed:
-    # only a literal int 1 is the grandfathered schema, so any other spelling
-    # of the schema value ("2", 2.0, a bool ...) still requires the arm.
-    # `type(...) is int`, not isinstance(): isinstance(True, int) is True and
-    # True == 1, so a bool would otherwise be grandfathered. Appended before
+    # models' built-in typ delays -- an unstated timing claim. Appended before
     # the 'ok' comparison below, so a wrong-arm record claiming "ok": true is
     # reported as both.
-    grandfathered = type(rec["schema"]) is int and rec["schema"] == 1
-    if rec["level"] == "gate" and not grandfathered:
+    if rec["level"] == "gate":
         method = rec.get("method")
         arm = method.get("cell_model_arm") if isinstance(method, dict) else None
         if arm is None:
-            errs.append(
-                "gate-level record (non-grandfathered schema) "
-                "missing method.cell_model_arm"
-            )
+            errs.append("gate-level record missing method.cell_model_arm")
         elif arm != "functional":
             errs.append(
                 f"gate-level record selected the cell models' timing arm "
@@ -88,21 +79,21 @@ def check(rec, repo_root=None):
 
 
 def _check_netlist(rec, errs, repo_root):
-    """A non-grandfathered gate record must name the netlist it graded, and
-    the named file must still be in the tree with that sha256. Fail closed
-    on every degenerate case -- a missing field, a path outside the repo,
-    a file that no longer exists: #92 was a record on main naming a netlist
-    that no longer existed, and nothing failed."""
+    """A gate record must name the netlist it graded, and the named file
+    must still be in the tree with that sha256. Fail closed on every
+    degenerate case -- a missing field, a path outside the repo, a file that
+    no longer exists: #92 was a record on main naming a netlist that no
+    longer existed, and nothing failed."""
     dut = rec["dut"]
     if not isinstance(dut, dict):
-        errs.append("gate-level record (non-grandfathered schema): 'dut' is not an object")
+        errs.append("gate-level record: 'dut' is not an object")
         return
     netlist = dut.get("netlist")
     sha = dut.get("netlist_sha256")
     if netlist is None:
-        errs.append("gate-level record (non-grandfathered schema) missing dut.netlist")
+        errs.append("gate-level record missing dut.netlist")
     if sha is None:
-        errs.append("gate-level record (non-grandfathered schema) missing dut.netlist_sha256")
+        errs.append("gate-level record missing dut.netlist_sha256")
     if netlist is None or sha is None:
         return
     if not isinstance(netlist, str) or not isinstance(sha, str):
