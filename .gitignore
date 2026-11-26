@@ -16,6 +16,10 @@ flow/build/
 # klt working directories (synthesis / P&R / sim scratch)
 .klt/
 sim/pdk-smoke/build/
+# Loom daemon runtime file (account ranking cache, written beside
+# account-health.json). Missing from the loom-managed block below: a Loom
+# defaults gap, covered here repo-locally for #155.
+.loom/account-ranking.codex
 # >>> loom-managed (do not edit) >>>
 # Loom runtime state (don't commit these)
 .loom-in-use
