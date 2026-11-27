@@ -20,21 +20,26 @@ scripts/lint-rtl.sh
 python3 verification/selftest_run_tests.py  # runner CLI-gating self-test; no venv needed
 ```
 
-`run_tests.py` exits 0 only if the smoke tests pass **and** the negative
-control fails. It writes one record per suite,
+`run_tests.py` writes one record per suite,
 `sim/build/verification/<suite>.json` (gitignored scratch): per-test
 pass/fail and `expected_fail`, seed (`--seed N` to replay), commit, `dirty`
-flag, DUT, and the version of every tool used. `check_records.py` validates
-every record in that directory, and CI uploads them as the
-`verification-result` artifact.
+flag, DUT, and the version of every tool used. It exits 0 only if the
+smoke tests pass **and** the negative control fails — and it takes that
+verdict from `check_records.py`: before `ok` and `problems` are assigned,
+the runner grades the record with the checker's content checks, the same
+function the checker runs over the file on disk. The two entry points
+cannot disagree: a record the checker would reject is failed by the runner
+that wrote it, with the checker's diagnostic in `problems`.
+`check_records.py` validates every record in that directory, and CI
+uploads them as the `verification-result` artifact.
 
 ## Layout
 
 | Path | Role |
 |---|---|
 | `run_tests.py` | runner: smoke group + negative-control group, writes the record |
-| `check_records.py` | validates a record (versions present, control failed on an assertion) |
-| `selftest_run_tests.py` | self-test of `run_tests.py`'s CLI gating (stdlib only; `python3 verification/selftest_run_tests.py`) |
+| `check_records.py` | validates a record (versions present, control failed on an assertion, gate provenance); its content checks also grade the runner's own record before `ok` is assigned |
+| `selftest_run_tests.py` | self-test of `run_tests.py`'s CLI gating and record grading (stdlib only; `python3 verification/selftest_run_tests.py`) |
 | `requirements.txt` | pinned Python deps |
 | `test_<block>.py` | per-block cocotb tests (loop filter, divider, lock detect, DCO code, top) |
 | `gate-level/` | re-runs `test_top` on the synthesized netlist (`run-gate-level.sh`, sim defines, committed record); pre-layout zero-delay functional, no SDF |
