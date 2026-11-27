@@ -280,7 +280,7 @@ def run_one(args, name):
     tests = [dict(t, expected_fail=False) for t in smoke]
     tests += [dict(t, expected_fail=True) for t in control]
     for t in tests:
-        t["ok"] = t["passed"] != t["expected_fail"]
+        t["ok"] = check_records.test_entry_error(t) is None
 
     rev = sh("git", "rev-parse", "HEAD").stdout.strip() or "unknown"
     dirty = bool(sh("git", "status", "--porcelain", "--untracked-files=no").stdout.strip())

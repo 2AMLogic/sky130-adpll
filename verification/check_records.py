@@ -38,6 +38,19 @@ def _missing_keys(rec, keys):
     return [f"missing key '{key}'" for key in keys if key not in rec]
 
 
+def test_entry_error(entry):
+    """Return the first problem with a test's observed fields, or None."""
+    for key in ("name", "passed", "expected_fail"):
+        if key not in entry:
+            return f"test entry missing '{key}': {entry}"
+    if entry["passed"] == entry["expected_fail"]:
+        want = "FAIL" if entry["expected_fail"] else "PASS"
+        return f"{entry['name']}: expected {want} but did not"
+    if entry["expected_fail"] and not entry.get("assertion_failure"):
+        return f"{entry['name']}: control failed but not on an assertion"
+    return None
+
+
 def content_errors(rec, repo_root=None):
     """Everything wrong with `rec`, read from its contents alone -- never
     from its 'ok' flag, which is what these errors are meant to summarise.
@@ -62,16 +75,9 @@ def content_errors(rec, repo_root=None):
     if not any(t.get("expected_fail") for t in tests):
         errs.append("no negative control (expected_fail) recorded")
     for t in tests:
-        for k in ("name", "passed", "expected_fail"):
-            if k not in t:
-                errs.append(f"test entry missing '{k}': {t}")
-                break
-        else:
-            if t["passed"] == t["expected_fail"]:
-                want = "FAIL" if t["expected_fail"] else "PASS"
-                errs.append(f"{t['name']}: expected {want} but did not")
-            elif t["expected_fail"] and not t.get("assertion_failure"):
-                errs.append(f"{t['name']}: control failed but not on an assertion")
+        problem = test_entry_error(t)
+        if problem is not None:
+            errs.append(problem)
     # Gate-level records must state the cell-model arm the compile selected,
     # and it must be the functional one: a timing-arm record carries the
     # models' built-in typ delays -- an unstated timing claim. Appended here,
