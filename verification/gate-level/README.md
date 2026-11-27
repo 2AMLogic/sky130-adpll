@@ -59,9 +59,14 @@ expression` warning means the timing arm was selected) and records the arm as
 `method.cell_model_arm` in every record. A `--level gate` run that selected
 the timing arm is a recorded `problems[]` failure with a non-zero exit, and
 `check_records.py` independently fails any schema-2 gate record whose arm is
-missing or not `functional`. The check lives in the runner, so the direct
-`run_tests.py` invocation documented below is no longer the unguarded path.
-The expected compile is warning-free.
+missing or not `functional`. The rule lives in the checker: the runner
+grades every record with the checker's content checks before it assigns
+`ok`, so the direct `run_tests.py` invocation documented below is no longer
+the unguarded path. That closes two more silent passes of the same shape
+(#163): a gate run with `--netlist` omitted, and one whose `--netlist` names
+a file the compile was not given. Both used to exit 0 with `"ok": true` and
+were rejected only by the standalone checker. The expected compile is
+warning-free.
 
 Two more measured details behind `sky130_fd_sc_hd_sim_defines.v`:
 
@@ -89,6 +94,7 @@ one test module:
 .venv/bin/python verification/run_tests.py \
   --level gate \
   --sources <sim_defines.v> <cell models...> <netlist.v> \
+  --netlist <netlist.v, as listed on --sources> \
   --toplevel <top> \
   --test-module <same test module as the RTL run> \
   --test-dir <its directory> \
@@ -100,6 +106,11 @@ one test module:
 - `--sources` requires **all four** of `--toplevel`, `--test-module`,
   `--test-dir` and `--tests`; omitting any one is an argparse error before the
   simulator starts.
+- `--netlist` names the netlist that was graded and must be one of the files
+  on `--sources`: the record's `dut.netlist` and `dut.netlist_sha256` are
+  written from it. A gate-level run that omits it, or names a file the
+  compile was not given, is a failed record with a non-zero exit — the
+  runner applies `check_records.py`'s content checks before it writes `ok`.
 - `--build-dir` must be an **absolute** path. cocotb's runner resolves the
   results XML relative to `--test-dir`, so a relative build dir makes the run
   report "simulator produced no results" even when every test passed.
@@ -127,4 +138,7 @@ the record on a mismatch, a missing field, or a file that is gone — so a
 regenerated netlist (e.g. by #69, which removes the 64 `conb_1` tie cells)
 invalidates the record loudly instead of silently. `npm run check:records` and
 CI both run that check against the committed record; re-run
-`run-gate-level.sh` to mint a fresh one.
+`run-gate-level.sh` to mint a fresh one. The runner holds a record to the
+same rule as it writes it — `--netlist` present, naming a file on
+`--sources`, hashing to what it records — so a record that would fail here
+cannot be reported as a pass there.

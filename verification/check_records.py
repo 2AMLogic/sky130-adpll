@@ -11,6 +11,12 @@ cell-model arm the compile selected and it must be the functional one, and
 must name the netlist it graded (dut.netlist + dut.netlist_sha256): the
 sha256 is re-derived from the committed file and any mismatch -- including a
 netlist that no longer exists in the tree -- is a failure, never a skip.
+
+The rules live in content_errors(), and run_tests.py grades the record it
+is about to write with that same function before assigning 'ok' and
+'problems': the runner cannot report success for a record this checker
+rejects. check() is the standalone pass over the file on disk -- the same
+content errors, then the stored 'ok' flag is held against them.
 Exit 0 pass, 1 invalid.
 """
 
@@ -23,12 +29,21 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DIR = REPO_ROOT / "sim/build/verification"
 TOOLS = ("iverilog", "verilator", "cocotb", "python")
+# What a record must carry for its contents to be checkable at all. 'ok' is
+# not among them: it is the verdict these checks produce, not an input.
+REQUIRED_KEYS = ("schema", "timestamp", "commit", "level", "dut", "seed", "tools", "tests")
 
 
-def check(rec, repo_root=None):
-    """repo_root defaults to this checkout; tests inject a throwaway tree."""
+def content_errors(rec, repo_root=None):
+    """Everything wrong with `rec`, read from its contents alone -- never
+    from its 'ok' flag, which is what these errors are meant to summarise.
+    run_tests.py assigns the list to problems[] before that flag exists;
+    check() recomputes it from the file on disk. The runner prints the list
+    unaltered as its PROBLEM output, which is why the gate-level messages
+    name the flags that fix them. repo_root defaults to this checkout; tests
+    inject a throwaway tree."""
     errs = []
-    for k in ("schema", "timestamp", "commit", "level", "dut", "seed", "tools", "tests", "ok"):
+    for k in REQUIRED_KEYS:
         if k not in rec:
             errs.append(f"missing key '{k}'")
     if errs:
@@ -58,9 +73,9 @@ def check(rec, repo_root=None):
                 errs.append(f"{t['name']}: control failed but not on an assertion")
     # Gate-level records must state the cell-model arm the compile selected,
     # and it must be the functional one: a timing-arm record carries the
-    # models' built-in typ delays -- an unstated timing claim. Appended before
-    # the 'ok' comparison below, so a wrong-arm record claiming "ok": true is
-    # reported as both.
+    # models' built-in typ delays -- an unstated timing claim. Appended here,
+    # before check() holds 'ok' against the list, so a wrong-arm record
+    # claiming "ok": true is reported as both.
     if rec["level"] == "gate":
         method = rec.get("method")
         arm = method.get("cell_model_arm") if isinstance(method, dict) else None
@@ -70,10 +85,24 @@ def check(rec, repo_root=None):
             errs.append(
                 f"gate-level record selected the cell models' timing arm "
                 f"(method.cell_model_arm: {arm!r}); the result carries the "
-                "models' built-in typ delays -- an unstated timing claim"
+                "models' built-in typ delays -- an unstated timing claim. "
+                "Define FUNCTIONAL before the models (a sim-defines file "
+                "first on --sources does this) and re-run."
             )
         _check_netlist(rec, errs, repo_root)
-    if rec["ok"] is not (not errs):
+    return errs
+
+
+def check(rec, repo_root=None):
+    """The standalone verdict on a record read back from disk: its content
+    errors, then the 'ok' flag the runner stored is held against them. The
+    runner skips this second half by construction -- it derives the flag
+    from the same list -- so this is what catches a record whose flag and
+    contents were made to disagree after the fact."""
+    errs = content_errors(rec, repo_root)
+    if "ok" not in rec:
+        errs.append("missing key 'ok'")
+    elif rec["ok"] is not (not errs):
         errs.append("'ok' field disagrees with the checked contents")
     return errs
 
@@ -91,7 +120,9 @@ def _check_netlist(rec, errs, repo_root):
     netlist = dut.get("netlist")
     sha = dut.get("netlist_sha256")
     if netlist is None:
-        errs.append("gate-level record missing dut.netlist")
+        errs.append("gate-level record missing dut.netlist: a gate-level run "
+                    "must name the netlist it graded -- pass run_tests.py "
+                    "--netlist <a file that is on --sources>")
     if sha is None:
         errs.append("gate-level record missing dut.netlist_sha256")
     if netlist is None or sha is None:
@@ -104,7 +135,9 @@ def _check_netlist(rec, errs, repo_root):
         return
     sources = dut.get("sources")
     if not isinstance(sources, list) or netlist not in sources:
-        errs.append(f"dut.netlist {netlist!r} is not listed in dut.sources")
+        errs.append(f"dut.netlist {netlist!r} is not listed in dut.sources: "
+                    "--netlist must name a file the run compiled, i.e. one of "
+                    "--sources")
         return
     root = Path(repo_root) if repo_root is not None else REPO_ROOT
     path = (root / netlist).resolve()

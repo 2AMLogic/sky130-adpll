@@ -9,12 +9,21 @@ run that selected the models' timing arm is a recorded problems[] failure.
 With --netlist, the designated netlist's repo-relative path and its sha256
 are recorded too (dut.netlist / dut.netlist_sha256), so check_records.py can
 re-derive the hash and fail a record the tree no longer backs.
+
+The record's verdict is not a second set of rules kept here. Before 'ok' and
+problems[] are assigned, the record is graded with check_records.py's
+content checks -- the same function that checker runs over the file on disk
+-- so the runner cannot report success for a record its checker rejects. A
+--level gate run therefore fails here unless --netlist names a file that is
+on --sources: the netlist the record claims to have graded. The checker is
+loaded from beside this file, never from the importer's path.
 dut.sources keeps repo-internal sources repo-relative but records sources
 under the PDK_ROOT the caller exported (run-gate-level.sh exports its
 effective root) as '$PDK_ROOT/...' entries, so a record does not encode the
 run host's account or checkout depth.
-Exit 0 only if every smoke test passed AND the negative control failed. A
-missing tool is an error, never a skip.
+Exit 0 only if that grading finds nothing: every smoke test passed, the
+negative control failed on its assertion and the record's provenance is
+complete. A missing tool is an error, never a skip.
 
 Cold start (from the repo root):
     uv venv .venv && uv pip install --python .venv/bin/python -r verification/requirements.txt
@@ -25,6 +34,7 @@ Gate-level re-run: see verification/gate-level/README.md (--sources/--toplevel).
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import random
@@ -40,6 +50,24 @@ REPO = HERE.parent
 CONTROL = "negative_control"
 RTL = REPO / "rtl"
 COMPILE_LOG = "compile.log"
+
+
+def _load_checker():
+    """check_records.py as it sits beside THIS file, loaded by path rather
+    than by import name: the self-tests run a copy of the runner out of a
+    temporary checkout, and that copy must grade with its own neighbour,
+    not with whichever 'check_records' module is first on the importer's
+    path."""
+    path = HERE / "check_records.py"
+    if not path.is_file():
+        sys.exit(f"run_tests: record checker not found beside the runner: {path}")
+    spec = importlib.util.spec_from_file_location("check_records", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+check_records = _load_checker()
 
 
 def cell_model_arm(log_path):
@@ -251,26 +279,8 @@ def run_one(args, name):
 
     tests = [dict(t, expected_fail=False) for t in smoke]
     tests += [dict(t, expected_fail=True) for t in control]
-    problems = []
     for t in tests:
         t["ok"] = t["passed"] != t["expected_fail"]
-        if not t["ok"]:
-            problems.append(
-                f"{t['name']}: expected {'FAIL' if t['expected_fail'] else 'PASS'}, "
-                f"got {'pass' if t['passed'] else 'fail'}"
-            )
-    if not any(t["expected_fail"] for t in tests):
-        problems.append("negative control did not run")
-    for t in tests:
-        if t["expected_fail"] and not t["passed"] and not t["assertion_failure"]:
-            problems.append(f"{t['name']}: failed, but not on an assertion")
-    if args.level == "gate" and arm != "functional":
-        problems.append(
-            f"gate-level run selected the cell models' timing arm ({arm}), not "
-            "the functional one: the result carries the models' built-in typ "
-            "delays -- an unstated timing claim. Define FUNCTIONAL before the "
-            "models (a sim-defines file first on --sources does this) and re-run."
-        )
 
     rev = sh("git", "rev-parse", "HEAD").stdout.strip() or "unknown"
     dirty = bool(sh("git", "status", "--porcelain", "--untracked-files=no").stdout.strip())
@@ -296,9 +306,13 @@ def run_one(args, name):
         "tools": versions,
         "method": {"cell_model_arm": arm},
         "tests": tests,
-        "ok": not problems,
-        "problems": problems,
     }
+    # One set of rules grades the record: the checker's content checks, the
+    # same ones its standalone pass runs over the file on disk. The verdict
+    # is whatever they find, so the two entry points cannot disagree.
+    problems = check_records.content_errors(record, repo_root=REPO)
+    record["ok"] = not problems
+    record["problems"] = problems
     rec_path = Path(args.record or Path(args.build_dir) / "result.json")
     rec_path.parent.mkdir(parents=True, exist_ok=True)
     rec_path.write_text(json.dumps(record, indent=2) + "\n")
@@ -307,7 +321,7 @@ def run_one(args, name):
               f"({'expected fail' if t['expected_fail'] else 'expected pass'}, "
               f"{'passed' if t['passed'] else 'failed'})")
     print(f"record: {rec_path}")
-    for p in problems:
+    for p in record["problems"]:
         print(f"PROBLEM: {p}", file=sys.stderr)
     return 0 if record["ok"] else 1
 

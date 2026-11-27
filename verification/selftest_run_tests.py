@@ -15,6 +15,12 @@ run-gate-level.sh itself over stubbed tooling (a PATH stub covers iverilog,
 which CI has not installed when this self-test runs) and check the runner
 process receives the root the wrapper built its source list from.
 
+The GateRecordGrading cases pin where run_one's verdict comes from (#163):
+the record checker's content checks, the same ones the standalone checker
+runs over the file on disk, so a record the checker rejects is failed by the
+runner that wrote it -- through both entry points, for each case of the
+finding.
+
 Run from the repo root:
     python3 verification/selftest_run_tests.py
 or via npm: npm run check:selftest
@@ -78,14 +84,35 @@ def _provision_gate_tree(checkout, pdk_root, sky130a_symlink=False):
             logical / "sky130_fd_sc_hd.v", checkout / GATE_SOURCES[3]]
 
 
+def _git_commit(checkout):
+    """Give `checkout` the one thing a temporary tree lacks that a real
+    checkout has: a commit for its record to name. run_one grades its
+    record with the checker, which rejects a commit that is not a 40-hex
+    sha, so an unversioned tree would fail every case for a reason none of
+    them pins. Isolated from the host's git config (signing, hooks) and
+    from any GIT_DIR the environment exports."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env["GIT_CONFIG_GLOBAL"] = os.devnull
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    for cmd in (["git", "init", "-q"],
+                ["git", "-c", "user.name=selftest",
+                 "-c", "user.email=selftest@example.invalid",
+                 "commit", "-q", "--allow-empty", "-m", "selftest"]):
+        subprocess.run(cmd, cwd=checkout, env=env, check=True)
+
+
 def _load_runner(checkout):
     """Import run_tests.py with REPO rooted at `checkout` -- the way a
     checkout at a different depth (e.g. a .loom worktree) runs the very
-    same file. The copy needs no other repo file: the module's imports are
-    stdlib-only at top level."""
+    same file. The copy needs exactly one other repo file beside it: the
+    record checker, which the runner loads from its own directory, so this
+    copy grades with its own neighbour and not with the importer's. Other
+    than that the module's imports are stdlib-only at top level."""
     verification = checkout / "verification"
     verification.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(Path(run_tests.__file__), verification / "run_tests.py")
+    for name in ("run_tests.py", "check_records.py"):
+        shutil.copyfile(VERIF / name, verification / name)
+    _git_commit(checkout)
     spec = importlib.util.spec_from_file_location(
         f"run_tests_selftest_{id(checkout)}", verification / "run_tests.py")
     mod = importlib.util.module_from_spec(spec)
@@ -93,21 +120,30 @@ def _load_runner(checkout):
     return mod
 
 
-def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None):
+def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None,
+                  arm="functional", build=None, outcome=None):
     """Run mod.run_one with the simulator and its tool probes stubbed;
     return (exit status, record dict, per-invocation source lists). PDK_ROOT
     is set to `pdk_root` (or removed) for the call only, exactly as
-    run-gate-level.sh arranges the environment for the real runner."""
+    run-gate-level.sh arranges the environment for the real runner. The
+    record lands under `build` -- a throwaway directory unless the caller
+    passes its own, which then stays on disk for the caller to inspect.
+    `outcome(testcase)` overrides what the stubbed simulator reports, as a
+    list of (name, passed, assertion_failure); the default is a passing
+    smoke test and a control failing on its assertion."""
     seen = []
     saved = (mod.simulate, mod.tool_versions, mod.cell_model_arm)
+    outcome = outcome or (lambda testcase: [(testcase, testcase != mod.CONTROL,
+                                             testcase == mod.CONTROL)])
     mod.simulate = lambda a, b, testcase, seed: (
         seen.append([str(s) for s in a.sources]),
-        [{"name": testcase, "passed": testcase != mod.CONTROL,
-          "assertion_failure": testcase == mod.CONTROL}])[1]
+        [{"name": n, "passed": p, "assertion_failure": m}
+         for n, p, m in outcome(testcase)])[1]
     mod.tool_versions = lambda: {"iverilog": "stub", "verilator": "stub",
                                  "cocotb": "stub", "python": "stub"}
-    mod.cell_model_arm = lambda log: "functional"
-    build = Path(tempfile.mkdtemp(prefix="run-tests-selftest-"))
+    mod.cell_model_arm = lambda log: arm
+    own_build = build is None
+    build = Path(build or tempfile.mkdtemp(prefix="run-tests-selftest-"))
     args = argparse.Namespace(
         sources=[str(s) for s in sources], toplevel="adpll_top",
         test_module="test_top", test_dir=str(Path(mod.REPO) / "verification"),
@@ -128,7 +164,8 @@ def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None):
             os.environ.pop("PDK_ROOT", None)
         else:
             os.environ["PDK_ROOT"] = env_saved
-        shutil.rmtree(build, ignore_errors=True)
+        if own_build:
+            shutil.rmtree(build, ignore_errors=True)
     return rc, record, seen
 
 
@@ -241,6 +278,106 @@ class GateRecordSources(unittest.TestCase):
                     record["dut"]["sources"],
                     [os.path.relpath(source, run_tests.REPO), "rtl/adpll_top.v"])
                 self.assertFalse(record["dut"]["sources"][0].startswith("$PDK_ROOT"))
+
+
+class GateRecordGrading(unittest.TestCase):
+    """run_one takes 'ok' and problems[] from check_records' content checks
+    (#163): the same function the standalone checker runs over the file on
+    disk, so the runner cannot report success for a record its checker
+    rejects. Each case of the finding goes through both entry points: the
+    netlist the compile used, the designation omitted, and a netlist that
+    exists in the tree but was not compiled. The simulator is stubbed, so an
+    RTL file stands in for the netlist."""
+
+    NETLIST = RTL / "adpll_top.v"
+    STRAY = run_tests.REPO / "flow/smoke/records/smoke_counter_synth.v"
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.build = Path(tmp.name)
+
+    def _grade(self, netlist, arm="functional", outcome=None):
+        """run_one over [NETLIST] designating `netlist`. Returns the
+        runner's (exit status, record) and the standalone checker's
+        completed process over the file the runner wrote."""
+        rc, record, _ = _write_record(
+            run_tests, [self.NETLIST], netlist=netlist, arm=arm, outcome=outcome,
+            build=str(self.build))
+        checker = subprocess.run(
+            [sys.executable, str(VERIF / "check_records.py"),
+             str(self.build / "result.json")],
+            capture_output=True, text=True)
+        return rc, record, checker
+
+    def _assert_both_fail(self, rc, record, checker, *diagnostics):
+        self.assertEqual(rc, 1)
+        self.assertFalse(record["ok"])
+        for fragment in diagnostics:
+            self.assertTrue(any(fragment in p for p in record["problems"]),
+                            record["problems"])
+        self.assertEqual(checker.returncode, 1, checker.stderr)
+        # the checker's complaints are the runner's, and no more: the stored
+        # "ok": false agrees with the contents it rechecked from disk
+        self.assertNotIn("disagrees", checker.stderr)
+        for p in record["problems"]:
+            self.assertIn(p, checker.stderr)
+
+    def test_the_compiled_netlist_passes_both_entry_points(self):
+        rc, record, checker = self._grade(str(self.NETLIST))
+        self.assertEqual((rc, record["ok"], record["problems"]), (0, True, []))
+        self.assertEqual(record["dut"]["netlist"], "rtl/adpll_top.v")
+        self.assertEqual(checker.returncode, 0, checker.stderr)
+
+    def test_omitted_netlist_fails_both_entry_points(self):
+        rc, record, checker = self._grade(None)
+        self._assert_both_fail(rc, record, checker, "missing dut.netlist",
+                               "missing dut.netlist_sha256")
+        self.assertNotIn("netlist", record["dut"])
+
+    def test_netlist_outside_the_compile_sources_fails_both_entry_points(self):
+        rc, record, checker = self._grade(str(self.STRAY))
+        self._assert_both_fail(rc, record, checker, "not listed in dut.sources")
+        self.assertEqual(record["dut"]["netlist"],
+                         "flow/smoke/records/smoke_counter_synth.v")
+
+    def test_timing_arm_still_fails_naming_the_remedy(self):
+        rc, record, checker = self._grade(str(self.NETLIST), arm="timing")
+        self._assert_both_fail(rc, record, checker, "timing arm",
+                               "Define FUNCTIONAL")
+
+    def test_a_record_without_a_commit_fails(self):
+        # every checker rule grades the runner's record now, not only the
+        # netlist ones: outside a git checkout HEAD is unknown, and that is
+        # a failed record instead of an "unknown" only the checker rejects
+        saved = run_tests.sh
+        run_tests.sh = lambda *cmd: subprocess.CompletedProcess(cmd, 0, stdout="")
+        try:
+            rc, record, checker = self._grade(str(self.NETLIST))
+        finally:
+            run_tests.sh = saved
+        self._assert_both_fail(rc, record, checker, "commit is not a 40-hex sha")
+
+    def test_a_run_that_recorded_no_smoke_test_fails(self):
+        # a second silent pass of the same class, closed by the same means:
+        # the runner's own rules asked only that the control ran, so a
+        # record holding nothing but the control was reported as a pass
+        rc, record, checker = self._grade(
+            str(self.NETLIST),
+            outcome=lambda testcase: [] if testcase != run_tests.CONTROL
+            else [(testcase, False, True)])
+        self._assert_both_fail(rc, record, checker,
+                               "no smoke (expected-pass) tests recorded")
+
+    def test_runner_copy_grades_with_the_checker_beside_it(self):
+        checkout, pdk_root = self.build / "checkout", self.build / "pdk"
+        _provision_gate_tree(checkout, pdk_root)
+        mod = _load_runner(checkout)
+        beside = (checkout / "verification" / "check_records.py").resolve()
+        self.assertEqual(Path(mod.check_records.__file__).resolve(), beside)
+        rc, record, _ = _write_record(
+            mod, [checkout / GATE_SOURCES[3]], netlist=str(checkout / GATE_SOURCES[3]))
+        self.assertEqual((rc, record["ok"], record["problems"]), (0, True, []))
 
 
 # The record the wrapper's stubbed runner "writes": enough schema for the

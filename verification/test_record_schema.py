@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Unit tests for check_records.py's cell-model-arm and netlist-hash rules
-(stdlib only).
+"""Unit tests for check_records.py's cell-model-arm and netlist-hash rules,
+and for the content-errors split the runner grades with (stdlib only).
 
 Run from the repo root:
     .venv/bin/python -m unittest discover -s verification \
@@ -16,9 +16,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_records import check
+from check_records import check, content_errors
 
 NETLIST = "flow/adpll/records/adpll_top_synth.v"
+OK_DISAGREES = "'ok' field disagrees with the checked contents"
 
 
 def record(**over):
@@ -104,6 +105,69 @@ class CellModelArmRule(unittest.TestCase):
             next(i for i, e in enumerate(errs) if "timing arm" in e),
             next(i for i, e in enumerate(errs) if "'ok' field disagrees" in e),
         )
+
+    def test_timing_arm_error_names_the_remedy(self):
+        # The runner's PROBLEM line is this message now: it has to say what
+        # to do, not only what is wrong.
+        errs = content_errors(record(method={"cell_model_arm": "timing"}))
+        self.assertTrue(any("Define FUNCTIONAL" in e for e in errs), errs)
+
+
+class ContentErrors(unittest.TestCase):
+    """check() = content_errors() + the 'ok' comparison (#163). The runner
+    assigns content_errors() to problems[] before an 'ok' flag exists, so
+    it must read everything from the record except that flag; the
+    standalone checker adds the flag comparison on top."""
+
+    def test_valid_record_has_no_content_errors(self):
+        self.assertEqual(content_errors(record()), [])
+
+    def test_content_errors_do_not_read_the_ok_flag(self):
+        rec = record()
+        del rec["ok"]
+        self.assertEqual(content_errors(rec), [])
+        bad = record(method={"cell_model_arm": "timing"})
+        self.assertEqual(content_errors(bad), content_errors(dict(bad, ok=False)))
+        self.assertTrue(content_errors(bad))
+
+    def test_check_is_the_content_errors_plus_the_flag_comparison(self):
+        bad = record(method={"cell_model_arm": "timing"})
+        content = content_errors(bad)
+        self.assertEqual(check(bad), content + [OK_DISAGREES])
+        self.assertEqual(check(dict(bad, ok=False)), content)
+        self.assertEqual(check(record()), [])
+
+    def test_check_still_requires_the_ok_key(self):
+        rec = record()
+        del rec["ok"]
+        self.assertEqual(check(rec), ["missing key 'ok'"])
+
+    def test_a_record_missing_a_key_still_has_its_ok_flag_held_against_it(self):
+        # The flag comparison no longer sits behind the missing-key early
+        # return: a record that lacks a key and yet says "ok": true is
+        # reported as both. The verdict was already a failure either way.
+        rec = record()
+        del rec["commit"]
+        self.assertEqual(check(rec), ["missing key 'commit'", OK_DISAGREES])
+        self.assertEqual(check(dict(rec, ok=False)), ["missing key 'commit'"])
+
+    def test_netlist_rules_reach_the_runner_through_content_errors(self):
+        # These two are the finding's invalid cases: the runner used to
+        # write "ok": true for both while the checker rejected them.
+        omitted = record()
+        del omitted["dut"]["netlist"]
+        del omitted["dut"]["netlist_sha256"]
+        errs = content_errors(omitted)
+        self.assertTrue(any("missing dut.netlist" in e for e in errs), errs)
+        self.assertTrue(any("missing dut.netlist_sha256" in e for e in errs), errs)
+        # ... and the error says which flag supplies the missing field
+        self.assertTrue(any("--netlist" in e for e in errs), errs)
+        stray = record()
+        stray["dut"]["netlist"] = "flow/smoke/records/smoke_counter_synth.v"
+        errs = content_errors(stray)
+        self.assertTrue(
+            any("not listed in dut.sources" in e and "--sources" in e for e in errs),
+            errs)
 
 
 class NetlistHashRule(unittest.TestCase):
