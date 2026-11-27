@@ -4,6 +4,8 @@ Chronological record of merged PRs and closed issues, maintained by the Guide ro
 
 ### 2026-11-27
 
+- **PR #167**: fix: grade negative-control rows with the checker's assertion rule
+- **Issue #166** (closed): Grade each negative-control row with the checker’s assertion rule
 - **PR #164**: fix: take run_tests.py's verdict from check_records.py's content checks
 - **Issue #163** (closed): Use the record checker to grade gate runs before reporting success
 
