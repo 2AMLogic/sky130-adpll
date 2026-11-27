@@ -332,8 +332,28 @@ class GateRecordGrading(unittest.TestCase):
     def test_the_compiled_netlist_passes_both_entry_points(self):
         rc, record, checker = self._grade(str(self.NETLIST))
         self.assertEqual((rc, record["ok"], record["problems"]), (0, True, []))
+        smoke, control = record["tests"]
+        self.assertIs(smoke["ok"], True)
+        self.assertIs(control["ok"], True)
         self.assertEqual(record["dut"]["netlist"], "rtl/adpll_top.v")
         self.assertEqual(checker.returncode, 0, checker.stderr)
+
+    def test_control_failure_without_assertion_is_reported_as_bad(self):
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            rc, record, checker = self._grade(
+                str(self.NETLIST),
+                outcome=lambda name: [(name, name != run_tests.CONTROL, False)],
+            )
+        smoke, control = record["tests"]
+        self.assertIs(smoke["ok"], True)
+        self.assertIs(control["ok"], False)
+        self.assertRegex(output.getvalue(), r"(?m)^BAD +negative_control\b")
+        self._assert_both_fail(
+            rc,
+            record,
+            checker,
+            "negative_control: control failed but not on an assertion",
+        )
 
     def test_omitted_netlist_fails_both_entry_points(self):
         rc, record, checker = self._grade(None)

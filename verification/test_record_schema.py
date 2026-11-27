@@ -125,6 +125,13 @@ class ContentErrors(unittest.TestCase):
     def test_valid_record_has_no_content_errors(self):
         self.assertEqual(content_errors(record()), [])
 
+    def test_stored_passing_row_cannot_hide_a_missing_assertion(self):
+        rec = record()
+        del rec["tests"][1]["assertion_failure"]
+        self.assertIn(
+            "negative_control: control failed but not on an assertion", check(rec)
+        )
+
     def test_content_errors_do_not_read_the_ok_flag(self):
         rec = record()
         del rec["ok"]
