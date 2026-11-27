@@ -84,23 +84,6 @@ def _provision_gate_tree(checkout, pdk_root, sky130a_symlink=False):
             logical / "sky130_fd_sc_hd.v", checkout / GATE_SOURCES[3]]
 
 
-def _git_commit(checkout):
-    """Give `checkout` the one thing a temporary tree lacks that a real
-    checkout has: a commit for its record to name. run_one grades its
-    record with the checker, which rejects a commit that is not a 40-hex
-    sha, so an unversioned tree would fail every case for a reason none of
-    them pins. Isolated from the host's git config (signing, hooks) and
-    from any GIT_DIR the environment exports."""
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["GIT_CONFIG_GLOBAL"] = os.devnull
-    env["GIT_CONFIG_NOSYSTEM"] = "1"
-    for cmd in (["git", "init", "-q"],
-                ["git", "-c", "user.name=selftest",
-                 "-c", "user.email=selftest@example.invalid",
-                 "commit", "-q", "--allow-empty", "-m", "selftest"]):
-        subprocess.run(cmd, cwd=checkout, env=env, check=True)
-
-
 def _load_runner(checkout):
     """Import run_tests.py with REPO rooted at `checkout` -- the way a
     checkout at a different depth (e.g. a .loom worktree) runs the very
@@ -112,7 +95,6 @@ def _load_runner(checkout):
     verification.mkdir(parents=True, exist_ok=True)
     for name in ("run_tests.py", "check_records.py"):
         shutil.copyfile(VERIF / name, verification / name)
-    _git_commit(checkout)
     spec = importlib.util.spec_from_file_location(
         f"run_tests_selftest_{id(checkout)}", verification / "run_tests.py")
     mod = importlib.util.module_from_spec(spec)
@@ -121,7 +103,7 @@ def _load_runner(checkout):
 
 
 def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None,
-                  arm="functional", build=None, outcome=None):
+                  arm="functional", build=None, outcome=None, commit="a" * 40):
     """Run mod.run_one with the simulator and its tool probes stubbed;
     return (exit status, record dict, per-invocation source lists). PDK_ROOT
     is set to `pdk_root` (or removed) for the call only, exactly as
@@ -130,9 +112,11 @@ def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None,
     passes its own, which then stays on disk for the caller to inspect.
     `outcome(testcase)` overrides what the stubbed simulator reports, as a
     list of (name, passed, assertion_failure); the default is a passing
-    smoke test and a control failing on its assertion."""
+    smoke test and a control failing on its assertion. `commit` is what the
+    stubbed `git rev-parse HEAD` prints: empty stands for a tree with no
+    HEAD, which run_one records as "unknown"."""
     seen = []
-    saved = (mod.simulate, mod.tool_versions, mod.cell_model_arm)
+    saved = (mod.simulate, mod.tool_versions, mod.cell_model_arm, mod.sh)
     outcome = outcome or (lambda testcase: [(testcase, testcase != mod.CONTROL,
                                              testcase == mod.CONTROL)])
     mod.simulate = lambda a, b, testcase, seed: (
@@ -142,6 +126,10 @@ def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None,
     mod.tool_versions = lambda: {"iverilog": "stub", "verilator": "stub",
                                  "cocotb": "stub", "python": "stub"}
     mod.cell_model_arm = lambda log: arm
+    # run_one also asks git for HEAD and the dirty flag; answered here so no
+    # case depends on whether the tree it runs in is a git checkout
+    mod.sh = lambda *cmd: subprocess.CompletedProcess(
+        cmd, 0, stdout=f"{commit}\n" if cmd[1] == "rev-parse" else "")
     own_build = build is None
     build = Path(build or tempfile.mkdtemp(prefix="run-tests-selftest-"))
     args = argparse.Namespace(
@@ -159,7 +147,7 @@ def _write_record(mod, sources, pdk_root=None, level="gate", netlist=None,
         rc = mod.run_one(args, "custom")
         record = json.loads(Path(args.record).read_text())
     finally:
-        mod.simulate, mod.tool_versions, mod.cell_model_arm = saved
+        mod.simulate, mod.tool_versions, mod.cell_model_arm, mod.sh = saved
         if env_saved is None:
             os.environ.pop("PDK_ROOT", None)
         else:
@@ -297,13 +285,13 @@ class GateRecordGrading(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.build = Path(tmp.name)
 
-    def _grade(self, netlist, arm="functional", outcome=None):
+    def _grade(self, netlist, arm="functional", outcome=None, commit="a" * 40):
         """run_one over [NETLIST] designating `netlist`. Returns the
         runner's (exit status, record) and the standalone checker's
         completed process over the file the runner wrote."""
         rc, record, _ = _write_record(
             run_tests, [self.NETLIST], netlist=netlist, arm=arm, outcome=outcome,
-            build=str(self.build))
+            commit=commit, build=str(self.build))
         checker = subprocess.run(
             [sys.executable, str(VERIF / "check_records.py"),
              str(self.build / "result.json")],
@@ -350,12 +338,7 @@ class GateRecordGrading(unittest.TestCase):
         # every checker rule grades the runner's record now, not only the
         # netlist ones: outside a git checkout HEAD is unknown, and that is
         # a failed record instead of an "unknown" only the checker rejects
-        saved = run_tests.sh
-        run_tests.sh = lambda *cmd: subprocess.CompletedProcess(cmd, 0, stdout="")
-        try:
-            rc, record, checker = self._grade(str(self.NETLIST))
-        finally:
-            run_tests.sh = saved
+        rc, record, checker = self._grade(str(self.NETLIST), commit="")
         self._assert_both_fail(rc, record, checker, "commit is not a 40-hex sha")
 
     def test_a_run_that_recorded_no_smoke_test_fails(self):
