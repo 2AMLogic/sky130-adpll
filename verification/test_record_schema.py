@@ -12,6 +12,9 @@ so unittest never tries to import the cocotb test modules in this directory.
 """
 
 import hashlib
+import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -141,6 +144,25 @@ class ContentErrors(unittest.TestCase):
         rec = record()
         del rec["ok"]
         self.assertEqual(check(rec), ["missing key 'ok'"])
+
+    def test_cli_checks_later_records_after_a_missing_verdict(self):
+        checker = Path(__file__).with_name("check_records.py")
+        with tempfile.TemporaryDirectory() as tmp:
+            bad, good = Path(tmp) / "bad.json", Path(tmp) / "good.json"
+            good.write_text(json.dumps(record()))
+            for field, value in (("commit", None), ("tools", None), ("tests", [None])):
+                with self.subTest(field=field):
+                    rec = record()
+                    del rec["ok"]
+                    rec[field] = value
+                    bad.write_text(json.dumps(rec))
+                    result = subprocess.run(
+                        [sys.executable, str(checker), str(bad), str(good)],
+                        capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("missing key 'ok'", result.stderr)
+                    self.assertEqual(result.stdout.splitlines(),
+                                     [f"check_records: {bad}: FAIL", f"check_records: {good}: ok"])
 
     def test_a_record_missing_a_key_still_has_its_ok_flag_held_against_it(self):
         # The flag comparison no longer sits behind the missing-key early

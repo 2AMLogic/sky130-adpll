@@ -34,6 +34,10 @@ TOOLS = ("iverilog", "verilator", "cocotb", "python")
 REQUIRED_KEYS = ("schema", "timestamp", "commit", "level", "dut", "seed", "tools", "tests")
 
 
+def _missing_keys(rec, keys):
+    return [f"missing key '{key}'" for key in keys if key not in rec]
+
+
 def content_errors(rec, repo_root=None):
     """Everything wrong with `rec`, read from its contents alone -- never
     from its 'ok' flag, which is what these errors are meant to summarise.
@@ -42,10 +46,7 @@ def content_errors(rec, repo_root=None):
     unaltered as its PROBLEM output, which is why the gate-level messages
     name the flags that fix them. repo_root defaults to this checkout; tests
     inject a throwaway tree."""
-    errs = []
-    for k in REQUIRED_KEYS:
-        if k not in rec:
-            errs.append(f"missing key '{k}'")
+    errs = _missing_keys(rec, REQUIRED_KEYS)
     if errs:
         return errs
     if not re.fullmatch(r"[0-9a-f]{40}", rec["commit"]):
@@ -99,10 +100,10 @@ def check(rec, repo_root=None):
     runner skips this second half by construction -- it derives the flag
     from the same list -- so this is what catches a record whose flag and
     contents were made to disagree after the fact."""
-    errs = content_errors(rec, repo_root)
     if "ok" not in rec:
-        errs.append("missing key 'ok'")
-    elif rec["ok"] is not (not errs):
+        return _missing_keys(rec, (*REQUIRED_KEYS, "ok"))
+    errs = content_errors(rec, repo_root)
+    if rec["ok"] is not (not errs):
         errs.append("'ok' field disagrees with the checked contents")
     return errs
 

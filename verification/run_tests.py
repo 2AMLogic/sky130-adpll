@@ -287,13 +287,20 @@ def run_one(args, name):
     # $PDK_ROOT tokens need the root the source list was actually built
     # from -- run-gate-level.sh exports its effective root for this call.
     pdk_root = os.environ.get("PDK_ROOT")
-    dut = {"sources": [pdk_root_source(s, pdk_root) or os.path.relpath(s, REPO)
-                       for s in args.sources], "toplevel": args.toplevel}
-    if args.netlist is not None:
-        netlist = Path(args.netlist)
+    netlist = Path(args.netlist).resolve() if args.netlist is not None else None
+    sources = []
+    for source in args.sources:
+        token = pdk_root_source(source, pdk_root)
+        # Record the compiled netlist by its target in both fields, even if
+        # the caller supplied a symlink. PDK models keep their logical paths.
+        if token is None and netlist is not None and Path(source).resolve() == netlist:
+            source = netlist
+        sources.append(token or os.path.relpath(source, REPO))
+    dut = {"sources": sources, "toplevel": args.toplevel}
+    if netlist is not None:
         if not netlist.is_file():
-            sys.exit(f"run_tests: --netlist file not found: {netlist}")
-        dut["netlist"] = os.path.relpath(netlist.resolve(), REPO)
+            sys.exit(f"run_tests: --netlist file not found: {args.netlist}")
+        dut["netlist"] = os.path.relpath(netlist, REPO)
         dut["netlist_sha256"] = hashlib.sha256(netlist.read_bytes()).hexdigest()
     record = {
         "schema": 2,

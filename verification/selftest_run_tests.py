@@ -237,6 +237,24 @@ class GateRecordSources(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(record["dut"]["sources"], GATE_SOURCES)
 
+    def test_symlinked_netlist_passes_runner_and_checker(self):
+        checkout, pdk_root = self.base / "checkout", self.base / "pdk"
+        sources = _provision_gate_tree(checkout, pdk_root)
+        link = checkout / "design.v"
+        link.symlink_to(GATE_SOURCES[-1])
+        sources[-1] = link
+        build = self.base / "build"
+        rc, record, _ = _write_record(
+            _load_runner(checkout), sources, pdk_root=pdk_root,
+            netlist=str(link), build=build)
+        self.assertEqual(rc, 0, record["problems"])
+        self.assertEqual(record["dut"]["sources"], GATE_SOURCES)
+        self.assertEqual(record["dut"]["netlist"], GATE_SOURCES[-1])
+        checker = subprocess.run(
+            [sys.executable, str(checkout / "verification/check_records.py"),
+             str(build / "result.json")], capture_output=True, text=True)
+        self.assertEqual(checker.returncode, 0, checker.stderr)
+
     def test_repo_local_rtl_with_pdk_root_unset_stays_repo_relative(self):
         rc, record, seen = _write_record(
             run_tests, [RTL / "adpll_top.v"], pdk_root=None, level="rtl")
